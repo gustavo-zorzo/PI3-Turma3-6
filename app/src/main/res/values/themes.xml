@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Tema do SuperID atualizado para MaterialComponents -->
+    <style name="Theme.SuperID" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+
+        <!-- Cores principais -->
+        <item name="colorPrimary">#0E2F5A</item> <!-- Azul escuro do fundo -->
+        <item name="colorPrimaryVariant">#1A3B66</item> <!-- Variante para status bar -->
+        <item name="colorSecondary">#A9D0F5</item> <!-- Azul claro para destaques -->
+
+        <!-- Cor de fundo padrão -->
+        <item name="android:windowBackground">#0E2F5A</item>
+
+        <!-- Textos em buttons e ações -->
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorOnSecondary">#0E2F5A</item>
+        <item name="colorOnBackground">#FFFFFF</item>
+
+    </style>
+</resources>
