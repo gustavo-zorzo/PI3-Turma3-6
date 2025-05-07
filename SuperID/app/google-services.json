@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "758906893412",
+    "project_id": "superid-fe402",
+    "storage_bucket": "superid-fe402.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:758906893412:android:336e549d0361c805e61b71",
+        "android_client_info": {
+          "package_name": "br.com.superid"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAIGxo8pxOntTuBTZPMrH5IHN48kP8b_ps"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
