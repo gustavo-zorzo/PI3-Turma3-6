@@ -16,10 +16,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.auth
-import com.google.firebase.firestore.firestore
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import android.util.Log
 import br.com.superid.ui.theme.SuperIDTheme
 
@@ -41,7 +41,7 @@ class SignUpActivity : ComponentActivity() {
     fun TelaCadastro() {
         var nome by remember { mutableStateOf("") }
         var email by remember { mutableStateOf("") }
-        var senha by remember { mutableStateOf("") }
+        var senhaMestre by remember { mutableStateOf("") }
         val context = LocalContext.current
 
         Column(
@@ -49,17 +49,14 @@ class SignUpActivity : ComponentActivity() {
                 .padding(24.dp)
                 .fillMaxWidth()
         ) {
-            Text(
-                "Cadastro",
-                fontSize = 24.sp
-            )
+            Text("Cadastro", fontSize = 24.sp)
 
             TextField(
                 value = nome,
                 onValueChange = { nome = it },
                 label = { Text("Nome") },
                 modifier = Modifier
-                    .padding(vertical = 10.dp, horizontal = 12.dp)
+                    .padding(vertical = 10.dp)
                     .fillMaxWidth()
             )
 
@@ -68,70 +65,64 @@ class SignUpActivity : ComponentActivity() {
                 onValueChange = { email = it },
                 label = { Text("Email") },
                 modifier = Modifier
-                    .padding(vertical = 10.dp, horizontal = 12.dp)
+                    .padding(vertical = 10.dp)
                     .fillMaxWidth()
             )
 
             TextField(
-                value = senha,
-                onValueChange = { senha = it },
+                value = senhaMestre,
+                onValueChange = { senhaMestre = it },
                 label = { Text("Senha") },
                 visualTransformation = PasswordVisualTransformation(),
                 modifier = Modifier
-                    .padding(vertical = 10.dp, horizontal = 12.dp)
+                    .padding(vertical = 10.dp)
                     .fillMaxWidth()
             )
 
             Button(
                 onClick = {
-                    if (nome.isNotBlank() && email.isNotBlank() && senha.length >= 6) {
-                        addFirestore(nome, email, senha, context)
-                        addAuth(email, senha, context)
-                        Log.d(TAG, "Usuário criado com sucesso")
+                    if (nome.isNotBlank() && email.isNotBlank() && senhaMestre.length >= 6) {
+                        cadastrarUsuario(nome, email, senhaMestre, context)
                     } else {
                         Toast.makeText(context, "Preencha todos os campos corretamente", Toast.LENGTH_SHORT).show()
                     }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 10.dp, horizontal = 12.dp)
+                    .padding(vertical = 10.dp)
             ) {
                 Text("Cadastrar")
             }
         }
     }
 
-    fun addFirestore(
-        nome: String,
-        email: String,
-        senha: String,
-        context: android.content.Context
-    ) {
-        val db = Firebase.firestore
-        val user = hashMapOf(
-            "Nome" to nome,
-            "Email" to email,
-            "Senha" to senha
-        )
-
-        db.collection("Usuario")
-            .add(user)
-            .addOnSuccessListener { documentReference ->
-                Log.d("Firestore", "Documento adicionado com ID: ${documentReference.id}")
-                Toast.makeText(context, "Usuário salvo no Firestore!", Toast.LENGTH_SHORT).show()
-            }
-            .addOnFailureListener { e ->
-                Log.w("Firestore", "Erro ao adicionar documento", e)
-                Toast.makeText(context, "Erro ao salvar dados: ${e.message}", Toast.LENGTH_LONG).show()
-            }
-    }
-
-    fun addAuth(email: String, senha: String, context: android.content.Context) {
-        Firebase.auth.createUserWithEmailAndPassword(email, senha)
+    fun cadastrarUsuario(nome: String, email: String, senhaMestre: String, context: android.content.Context) {
+        Firebase.auth.createUserWithEmailAndPassword(email, senhaMestre)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-                    Log.d(TAG, "createUserWithEmail:success")
-                    Toast.makeText(context, "Cadastro autenticado com sucesso!", Toast.LENGTH_SHORT).show()
+                    val uid = Firebase.auth.currentUser?.uid
+                    val db = Firebase.firestore
+
+                    val dadosUsuario = hashMapOf(
+                        "uid" to uid,
+                        "nome" to nome,
+                        "email" to email,
+                        "senha" to senhaMestre
+                    )
+
+                    if (uid != null) {
+                        db.collection("Usuario").document(uid)
+                            .set(dadosUsuario)
+                            .addOnSuccessListener {
+                                Log.d(TAG, "Usuário salvo com sucesso no Firestore.")
+                                Toast.makeText(context, "Cadastro completo!", Toast.LENGTH_SHORT).show()
+                            }
+                            .addOnFailureListener { e ->
+                                Log.w(TAG, "Erro ao salvar no Firestore", e)
+                                Toast.makeText(context, "Erro ao salvar dados: ${e.message}", Toast.LENGTH_LONG).show()
+                            }
+                    }
+
                 } else {
                     Log.w(TAG, "createUserWithEmail:failure", task.exception)
                     Toast.makeText(context, "Erro ao criar conta: ${task.exception?.message}", Toast.LENGTH_LONG).show()

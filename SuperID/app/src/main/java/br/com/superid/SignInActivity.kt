@@ -38,7 +38,7 @@ class SignInActivity : ComponentActivity() {
     @Composable
     fun TelaLogin() {
         var email by remember { mutableStateOf("") }
-        var senha by remember { mutableStateOf("") }
+        var senhaMestre by remember { mutableStateOf("") }
         val context = LocalContext.current
 
         Column(
@@ -56,8 +56,8 @@ class SignInActivity : ComponentActivity() {
             )
 
             TextField(
-                value = senha,
-                onValueChange = { senha = it },
+                value = senhaMestre,
+                onValueChange = { senhaMestre = it },
                 label = { Text("Senha") },
                 visualTransformation = PasswordVisualTransformation(),
                 modifier = Modifier
@@ -67,8 +67,8 @@ class SignInActivity : ComponentActivity() {
 
             Button(
                 onClick = {
-                    if (email.isNotBlank() && senha.isNotBlank()) {
-                        loginAuth(email, senha, context) { login ->
+                    if (email.isNotBlank() && senhaMestre.isNotBlank()) {
+                        loginAuth(email, senhaMestre, context) { login ->
                             if (login) {
                                 Toast.makeText(context, "Login realizado com sucesso!", Toast.LENGTH_SHORT).show()
 
@@ -96,14 +96,21 @@ class SignInActivity : ComponentActivity() {
         }
     }
 
-    fun loginAuth(email: String, senha: String, context: android.content.Context, onResult: (Boolean) -> Unit) {
-        auth.signInWithEmailAndPassword(email, senha)
+    fun loginAuth(
+        email: String,
+        senhaMestre: String,
+        context: android.content.Context,
+        onResult: (Boolean) -> Unit
+    ) {
+        auth.signInWithEmailAndPassword(email, senhaMestre)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     Log.d(TAG, "Logado com sucesso")
+                    Toast.makeText(context, "Login realizado com sucesso", Toast.LENGTH_SHORT).show()
                     onResult(true)
                 } else {
                     Log.w(TAG, "Erro ao logar", task.exception)
+                    Toast.makeText(context, "Erro no login: ${task.exception?.message}", Toast.LENGTH_LONG).show()
                     onResult(false)
                 }
             }
