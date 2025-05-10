@@ -72,7 +72,7 @@ class SignInActivity : ComponentActivity() {
                             if (login) {
                                 Toast.makeText(context, "Login realizado com sucesso!", Toast.LENGTH_SHORT).show()
 
-                                val intent = Intent(context, MainActivity::class.java)
+                                val intent = Intent(context, DashboardActivity::class.java)
                                 context.startActivity(intent)
 
                                 if (context is ComponentActivity) {

@@ -1,21 +1,25 @@
 package br.com.superid
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontWeight
 import br.com.superid.ui.theme.SuperIDTheme
+
 
 class DashboardActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,6 +34,8 @@ class DashboardActivity : ComponentActivity() {
 
 @Composable
 fun TelaPrincipal() {
+    val context = LocalContext.current
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -45,15 +51,24 @@ fun TelaPrincipal() {
         ) {
             OpcaoMenu(
                 iconRes = R.drawable.logo_qrcode,
-                texto = "Login sem senha"
+                texto = "Login sem senha",
+                onClick = {
+                    // ação futura
+                }
             )
             OpcaoMenu(
                 iconRes = R.drawable.logo_senha,
-                texto = "Gerenciar senhas"
+                texto = "Gerenciar senhas",
+                onClick = {
+                    context.startActivity(Intent(context, PasswordManagerActivity::class.java))
+                }
             )
             OpcaoMenu(
                 iconRes = R.drawable.logo_conf,
-                texto = "Configurar conta"
+                texto = "Configurar conta",
+                onClick = {
+                    // ação futura
+                }
             )
         }
     }
@@ -91,11 +106,12 @@ fun TopAppBarContent() {
 }
 
 @Composable
-fun OpcaoMenu(iconRes: Int, texto: String) {
+fun OpcaoMenu(iconRes: Int, texto: String, onClick: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .background(Color(0xFFDFF0FF))
+            .clickable { onClick() }
             .padding(vertical = 32.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -105,6 +121,6 @@ fun OpcaoMenu(iconRes: Int, texto: String) {
             modifier = Modifier.size(80.dp)
         )
         Spacer(modifier = Modifier.height(12.dp))
-        Text(text = texto, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+        Text(texto, fontSize = 18.sp, fontWeight = FontWeight.Bold)
     }
 }

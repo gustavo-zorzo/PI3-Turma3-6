@@ -26,6 +26,7 @@
         <!-- telas -->
         <activity android:name=".SignUpActivity" />
         <activity android:name=".SignInActivity" />
+        <activity android:name=".PasswordManagerActivity" />
 
         <!-- tela dashboard -->
         <activity
