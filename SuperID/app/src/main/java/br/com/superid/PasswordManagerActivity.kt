@@ -85,7 +85,7 @@ fun PasswordManagerScreen() {
             },
             actions = {
                 IconButton(onClick = {
-                    activity?.finish() // Fecha a tela atual, voltando ao Dashboard
+                    activity?.finish()
                 }) {
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
