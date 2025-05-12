@@ -20,10 +20,12 @@ import br.com.superid.ui.theme.SuperIDTheme
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import android.app.Activity
+import android.util.Base64
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.ui.platform.LocalContext
+import java.security.SecureRandom
 
 data class Senha(
     val id: String = "",
@@ -61,11 +63,17 @@ fun PasswordManagerScreen() {
             db.collection("Senhas").whereEqualTo("uid", it).addSnapshotListener { snapshot, _ ->
                 if (snapshot != null) {
                     senhas = snapshot.documents.map { doc ->
+                        val senhaCriptografada = doc.getString("senha") ?: ""
+                        val senhaDescriptografada = try {
+                            CryptoManager.decryptAES(senhaCriptografada)
+                        } catch (e: Exception) {
+                            "[Erro na descriptografia]"
+                        }
                         Senha(
                             id = doc.id,
                             titulo = doc.getString("titulo") ?: "",
                             login = doc.getString("login") ?: "",
-                            senha = doc.getString("senha") ?: "",
+                            senha = senhaDescriptografada,
                             categoria = doc.getString("categoria") ?: ""
                         )
                     }
@@ -136,12 +144,21 @@ fun PasswordManagerScreen() {
                     },
                     onSave = { titulo, login, senha, categoria, id ->
                         if (uid != null) {
+                            // Criptografa a senha
+                            val senhaCriptografada = CryptoManager.encryptAES(senha)
+
+                            // Gera accessToken de 256 caracteres (192 bytes em Base64)
+                            val tokenBytes = ByteArray(192)
+                            SecureRandom().nextBytes(tokenBytes)
+                            val accessToken = Base64.encodeToString(tokenBytes, Base64.NO_WRAP)
+
                             val dados = mapOf(
                                 "uid" to uid,
                                 "titulo" to titulo,
                                 "login" to login,
-                                "senha" to senha,
-                                "categoria" to categoria
+                                "senha" to senhaCriptografada,
+                                "categoria" to categoria,
+                                "accessToken" to accessToken
                             )
 
                             if (id != null) {
@@ -152,7 +169,9 @@ fun PasswordManagerScreen() {
                         }
                         showDialog = false
                         senhaParaEditar = null
+
                     }
+
                 )
             }
         }
@@ -219,6 +238,7 @@ fun NovaSenhaDialog(
     var senha by remember { mutableStateOf(senhaInicial?.senha ?: "") }
     var categoria by remember { mutableStateOf(senhaInicial?.categoria ?: "") }
     var expanded by remember { mutableStateOf(false) }
+
 
     val categorias = listOf("Rede Social", "Streaming", "Banco", "E-mail", "Trabalho", "Outro")
 
