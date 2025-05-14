@@ -38,9 +38,14 @@
             android:name=".PasswordManagerActivity"
             android:exported="true" />
 
-        <!-- Tela principal após login -->
+        <!-- Tela dashboard -->
         <activity
             android:name=".DashboardActivity"
+            android:exported="true" />
+
+        <!-- Tela de configuracao de conta -->
+        <activity
+            android:name=".AccountConfigActivity"
             android:exported="true" />
 
     </application>

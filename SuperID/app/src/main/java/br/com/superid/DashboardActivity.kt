@@ -67,7 +67,7 @@ fun TelaPrincipal() {
                 iconRes = R.drawable.logo_conf,
                 texto = "Configurar conta",
                 onClick = {
-                    // ação futura
+                    context.startActivity(Intent(context, AccountConfigActivity::class.java))
                 }
             )
         }
