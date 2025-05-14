@@ -5,12 +5,8 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -68,16 +64,14 @@ class SignInActivity : ComponentActivity() {
             Button(
                 onClick = {
                     if (email.isNotBlank() && senhaMestre.isNotBlank()) {
-                        loginAuth(email, senhaMestre, context) { login ->
+                        loginAuth(email, senhaMestre) { login ->
                             if (login) {
                                 Toast.makeText(context, "Login realizado com sucesso!", Toast.LENGTH_SHORT).show()
 
-                                val intent = Intent(context, DashboardActivity::class.java)
-                                context.startActivity(intent)
-
-                                if (context is ComponentActivity) {
-                                    context.finish()
-                                }
+                                // vai para a tela DashboardActivity
+                                val intent = Intent(this@SignInActivity, DashboardActivity::class.java)
+                                startActivity(intent)
+                                finish()
 
                             } else {
                                 Toast.makeText(context, "Erro ao fazer login. Verifique email e senha.", Toast.LENGTH_LONG).show()
@@ -99,18 +93,15 @@ class SignInActivity : ComponentActivity() {
     fun loginAuth(
         email: String,
         senhaMestre: String,
-        context: android.content.Context,
         onResult: (Boolean) -> Unit
     ) {
         auth.signInWithEmailAndPassword(email, senhaMestre)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     Log.d(TAG, "Logado com sucesso")
-                    Toast.makeText(context, "Login realizado com sucesso", Toast.LENGTH_SHORT).show()
                     onResult(true)
                 } else {
                     Log.w(TAG, "Erro ao logar", task.exception)
-                    Toast.makeText(context, "Erro no login: ${task.exception?.message}", Toast.LENGTH_LONG).show()
                     onResult(false)
                 }
             }

@@ -24,7 +24,7 @@ class MainActivity : ComponentActivity() {
             SuperIDTheme {
                 TelaPrincipal()
             }
-        }
+        } 
     }
 
     @Composable

@@ -7,13 +7,13 @@
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
-        android:label="SuperIDTheme"
+        android:label="SuperID"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.SuperID"
         tools:targetApi="31">
 
-        <!-- Tela principal ao iniciar o app -->
+        <!-- Tela inicial -->
         <activity
             android:name=".WelcomeActivity"
             android:exported="true">
@@ -23,12 +23,22 @@
             </intent-filter>
         </activity>
 
-        <!-- telas -->
-        <activity android:name=".SignUpActivity" />
-        <activity android:name=".SignInActivity" />
-        <activity android:name=".PasswordManagerActivity" />
+        <!-- Tela de cadastro -->
+        <activity
+            android:name=".SignUpActivity"
+            android:exported="true" />
 
-        <!-- tela dashboard -->
+        <!-- Tela de login -->
+        <activity
+            android:name=".SignInActivity"
+            android:exported="true" />
+
+        <!-- Tela de gerenciamento de senhas -->
+        <activity
+            android:name=".PasswordManagerActivity"
+            android:exported="true" />
+
+        <!-- Tela principal após login -->
         <activity
             android:name=".DashboardActivity"
             android:exported="true" />
