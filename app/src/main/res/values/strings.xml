@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">SuperID</string>
+    <string name="title_activity_splash">SplashActivity</string>
+    <string name="welcome">Bem vindo ao SuperID!</string>
+    <string name="info">O SuperID é a maneira mais inovadora e segura de gerenciar suas credenciais e acessar sites sem precisar memorizar senhas.\n\nCom tecnologia de ponta, ele protege suas informações com criptografia avançada e permite login rápido via QR Code em sites parceiros.\n\nSimples, prático e confiável – sua segurança sempre em primeiro lugar!</string>
+    <string name="register">Cadastre-se</string>
+    <string name="have_account">Já tem uma conta? Faça login</string>
+    <string name="nome_usuario">Nome de usuário:</string>
+    <string name="endereco_email">Endereço de e-mail:</string>
+    <string name="senha">Senha:</string>
+    <string name="confirme_senha">Confirme a senha:</string>
+    <string name="termos">Eu li e concordo com os termos de uso</string>
+    <string name="cadastre_se">Cadastre-se</string>
+    <string name="hint_nome_usuario">Nome de usuário</string>
+    <string name="hint_email">exemplo@email.com</string>
+    <string name="hint_senha">********</string>
+    <string name="hint_confirme_senha">********</string>
+    <string name="descricao_logo">Logo SuperID</string>
+    <string name="back_button_desc">Botão voltar</string>
+    <string name="welcome_back">Bem vindo de volta!</string>
+    <string name="entrar">Entrar</string>
+    <string name="esqueci_senha">Esqueci minha senha</string>
+    <string name="termos_de_uso">1. Introdução\nBem-vindo ao SuperID! Estes Termos de Serviço (\"Termos\") regem o uso do aplicativo SuperID e de seus serviços associados. Ao utilizar o SuperID, você concorda com estes Termos. Caso não concorde, não utilize o aplicativo.\n\n2. Cadastro e Conta do Usuário\nPara utilizar o SuperID, você deve criar uma conta, fornecendo Nome, E-mail e Senha Mestre.\nVocê deve validar seu e-mail para utilizar a funcionalidade de Login Sem Senha.\nO SuperID armazena UID e IMEI do dispositivo para segurança e autenticação.\n\n3. Uso do Aplicativo\nO SuperID permite armazenar e gerenciar senhas de forma segura.\nSenhas são organizadas por categorias e criptografadas antes do armazenamento.\nCada senha recebe um accessToken de 256 caracteres para aumentar a segurança.\nVocê pode cadastrar, editar e excluir suas senhas a qualquer momento.\n\n4. Login Sem Senha em Sites Parceiros\nO SuperID oferece a opção de login via QR Code em sites parceiros.\nAo escanear um QR Code gerado por um site parceiro, sua conta será autenticada automaticamente.\nO site parceiro pode consultar seu status de login por um período limitado de tempo.\n\n5. Segurança e Proteção de Dados\nTodas as senhas armazenadas são criptografadas para garantir a máxima segurança.\nO usuário é responsável por manter sua Senha Mestre em sigilo.\nO SuperID não se responsabiliza por acessos não autorizados devido ao compartilhamento da senha mestre.\n\n6. Recuperação de Senha Mestre\nCaso o usuário esqueça sua Senha Mestre, poderá redefini-la via e-mail, desde que o e-mail tenha sido validado previamente.\n\n7. Responsabilidades e Limitações\nO SuperID é um gerenciador de senhas, mas não se responsabiliza por falhas de segurança externas a sua plataforma.\nO aplicativo pode ser atualizado para melhorias e correções sem aviso prévio.\nO uso indevido do aplicativo pode resultar na suspensão ou exclusão da conta.\n\n8. Modificações nos Termos\nPodemos atualizar estes Termos periodicamente. Notificaremos os usuários sobre alterações relevantes.</string>
+    <string name="terms">Termos de serviço</string>
+    <string name="confirmar_leitura">Confirmar leitura</string>
+    <string name="ler_termos">Ler termos de serviço</string>
+</resources>
