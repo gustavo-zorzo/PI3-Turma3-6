@@ -53,6 +53,11 @@
             android:name=".EmailVerificationActivity"
             android:exported="true" />
 
+        <!-- Tela de recuperacao da senha master -->
+        <activity
+            android:name=".MasterPasswordRecovery"
+            android:exported="true" />
+
     </application>
 
 </manifest>

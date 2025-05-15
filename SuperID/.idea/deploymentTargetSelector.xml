@@ -17,6 +17,9 @@
       <SelectionState runConfigName="EmailVerificationActivity">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
+      <SelectionState runConfigName="MasterPasswordRecovery">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
     </selectionStates>
   </component>
 </project>

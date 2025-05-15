@@ -21,19 +21,19 @@ import androidx.compose.ui.unit.sp
 import br.com.superid.ui.theme.SuperIDTheme
 import com.google.firebase.auth.FirebaseAuth
 
-class EmailVerificationActivity : ComponentActivity() {
+class MasterPasswordRecovery : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             SuperIDTheme {
-                EmailVerificationScreen()
+                PasswordRecoveryScreen()
             }
         }
     }
 }
 
 @Composable
-fun EmailVerificationScreen() {
+fun PasswordRecoveryScreen() {
     val context = LocalContext.current
     val user = FirebaseAuth.getInstance().currentUser
     val email = user?.email ?: ""
@@ -45,15 +45,14 @@ fun EmailVerificationScreen() {
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Validar e-mail",
-                fontSize = 24.sp,
+                text = "Recuperação da senha\nmestre:",
+                fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF122C4F)
             )
@@ -76,17 +75,17 @@ fun EmailVerificationScreen() {
         Spacer(modifier = Modifier.height(32.dp))
 
         Text(
-            text = "Verifique se o endereço de e-mail está correto. \nVamos te enviar um link de confirmação.",
-            fontSize = 19.sp,
+            text = "Verifique se seu endereço de e-mail está\nvalidado.\nVocê receberá um link para a recuperação da senha.",
+            fontSize = 18.sp,
             color = Color(0xFF122C4F),
             lineHeight = 24.sp
         )
 
-        Spacer(modifier = Modifier.height(150.dp))
+        Spacer(modifier = Modifier.height(80.dp))
 
         Text(
-            "Digite seu endereço de email:",
-            fontSize = 20   .sp,
+            "Endereço de email:",
+            fontSize = 18.sp,
             color = Color(0xFF122C4F),
             fontWeight = FontWeight.Medium
         )
@@ -103,16 +102,16 @@ fun EmailVerificationScreen() {
             textStyle = LocalTextStyle.current.copy(fontSize = 18.sp)
         )
 
-        Spacer(modifier = Modifier.height(200.dp))
+        Spacer(modifier = Modifier.height(60.dp))
 
         Button(
             onClick = {
-                user?.sendEmailVerification()
-                    ?.addOnSuccessListener {
-                        Toast.makeText(context, "E-mail de verificação enviado!", Toast.LENGTH_SHORT).show()
+                FirebaseAuth.getInstance().sendPasswordResetEmail(emailState)
+                    .addOnSuccessListener {
+                        Toast.makeText(context, "Link de recuperação enviado!", Toast.LENGTH_SHORT).show()
                     }
-                    ?.addOnFailureListener {
-                        Toast.makeText(context, "Erro ao enviar verificação: ${it.message}", Toast.LENGTH_LONG).show()
+                    .addOnFailureListener {
+                        Toast.makeText(context, "Erro: ${it.message}", Toast.LENGTH_LONG).show()
                     }
             },
             modifier = Modifier
@@ -122,7 +121,7 @@ fun EmailVerificationScreen() {
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF122C4F))
         ) {
             Text(
-                "Validar e-mail",
+                "Enviar link de recuperação",
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp,
                 color = Color.White
@@ -137,11 +136,11 @@ fun EmailVerificationScreen() {
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.clickable {
-                user?.sendEmailVerification()
-                    ?.addOnSuccessListener {
+                FirebaseAuth.getInstance().sendPasswordResetEmail(emailState)
+                    .addOnSuccessListener {
                         Toast.makeText(context, "E-mail reenviado com sucesso!", Toast.LENGTH_SHORT).show()
                     }
-                    ?.addOnFailureListener {
+                    .addOnFailureListener {
                         Toast.makeText(context, "Erro: ${it.message}", Toast.LENGTH_LONG).show()
                     }
             }

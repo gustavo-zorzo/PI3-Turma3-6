@@ -80,7 +80,7 @@ fun TopAppBarContent() {
         modifier = Modifier
             .fillMaxWidth()
             .background(Color.White)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .padding(horizontal = 16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -88,20 +88,9 @@ fun TopAppBarContent() {
             painter = painterResource(id = R.drawable.logo_superidauth),
             contentDescription = "Logo",
             modifier = Modifier
-                .height(200.dp)
-                .width(200.dp)
+                .height(220.dp)
+                .width(220.dp)
         )
-
-        IconButton(onClick = {
-
-        }) {
-            Image(
-                painter = painterResource(id = R.drawable.logo_menu),
-                contentDescription = "Menu",
-                modifier = Modifier
-                    .size(32.dp)
-            )
-        }
     }
 }
 

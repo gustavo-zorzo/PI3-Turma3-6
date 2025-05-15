@@ -72,14 +72,7 @@ fun TelaPerfil() {
                 painter = painterResource(id = R.drawable.logo_pencil),
                 contentDescription = "Editar",
                 modifier = Modifier
-                    .size(60.dp)
-                    .clickable {
-                        Toast.makeText(
-                            context,
-                            "Função editar ainda não implementada",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    },
+                    .size(60.dp),
                 tint = Color.Unspecified
             )
 
@@ -118,8 +111,9 @@ fun TelaPerfil() {
             context.startActivity(intent)
         }
         HorizontalDivider()
-        ProfileButton("Gerenciar notificações de segurança") {
-            Toast.makeText(context, "Função ainda não implementada", Toast.LENGTH_SHORT).show()
+        ProfileButton("Recupere a sua senha master") {
+            val intent = Intent(context, MasterPasswordRecovery::class.java)
+            context.startActivity(intent)
         }
         HorizontalDivider()
 

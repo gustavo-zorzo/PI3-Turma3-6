@@ -250,6 +250,7 @@ fun NovaSenhaDialog(
     var titulo by remember { mutableStateOf(senhaInicial?.titulo ?: "") }
     var login by remember { mutableStateOf(senhaInicial?.login ?: "") }
     var senha by remember { mutableStateOf(senhaInicial?.senha ?: "") }
+    var descricao by remember { mutableStateOf(senhaInicial?.senha ?: "") }
     var categoria by remember { mutableStateOf(senhaInicial?.categoria ?: "") }
     var expanded by remember { mutableStateOf(false) }
 
@@ -262,8 +263,27 @@ fun NovaSenhaDialog(
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedTextField(value = titulo, onValueChange = { titulo = it }, label = { Text("Título") })
-                OutlinedTextField(value = login, onValueChange = { login = it }, label = { Text("Login") })
+                OutlinedTextField(
+                    value = login,
+                    onValueChange = { login = it },
+                    label = {
+                        Row {
+                            Text("Login", modifier = Modifier.weight(1f))
+                            Text("(opcional)", fontSize = 12.sp)
+                        }
+                    }
+                )
                 OutlinedTextField(value = senha, onValueChange = { senha = it }, label = { Text("Senha") })
+                OutlinedTextField(
+                    value = descricao,
+                    onValueChange = { descricao = it },
+                    label = {
+                        Row {
+                            Text("Descrição", modifier = Modifier.weight(1f))
+                            Text("(opcional)", fontSize = 12.sp)
+                        }
+                    }
+                )
 
                 ExposedDropdownMenuBox(
                     expanded = expanded,
