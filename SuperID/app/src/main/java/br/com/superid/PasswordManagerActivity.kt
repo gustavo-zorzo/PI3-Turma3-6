@@ -34,7 +34,8 @@ data class Senha(
     val titulo: String = "",
     val login: String = "",
     val senha: String = "",
-    val categoria: String = ""
+    val categoria: String = "",
+    val descricao: String = ""
 )
 
 class PasswordManagerActivity : ComponentActivity() {
@@ -60,6 +61,8 @@ fun PasswordManagerScreen() {
     val activity = context as? Activity
     var senhaParaEditar by remember { mutableStateOf<Senha?>(null) }
 
+    val categoriasObrigatorias = listOf("Sites Web", "Aplicativos", "Teclados de Acesso Físico")
+
     LaunchedEffect(uid) {
         uid?.let {
             db.collection("Senhas").whereEqualTo("uid", it).addSnapshotListener { snapshot, _ ->
@@ -76,12 +79,18 @@ fun PasswordManagerScreen() {
                             titulo = doc.getString("titulo") ?: "",
                             login = doc.getString("login") ?: "",
                             senha = senhaDescriptografada,
-                            categoria = doc.getString("categoria") ?: ""
+                            categoria = doc.getString("categoria") ?: "",
+                            descricao = doc.getString("descricao") ?: ""
                         )
                     }
                 }
             }
         }
+    }
+
+    val todasCategorias = (senhas.map { it.categoria } + categoriasObrigatorias).toSet().sorted()
+    val senhasPorCategoria = todasCategorias.associateWith { cat ->
+        senhas.filter { it.categoria == cat }
     }
 
     Column(
@@ -96,14 +105,12 @@ fun PasswordManagerScreen() {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Título
             Text(
-                text = "Gerenciador de Senhas",
+                text = "Gerencie suas senhas",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
             )
 
-            // Botão de voltar no canto direito
             Icon(
                 painter = painterResource(id = R.drawable.logo_back),
                 contentDescription = "Voltar",
@@ -116,7 +123,6 @@ fun PasswordManagerScreen() {
             )
         }
 
-
         Column(modifier = Modifier.padding(16.dp)) {
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -124,19 +130,29 @@ fun PasswordManagerScreen() {
                     .weight(1f)
                     .padding(top = 16.dp)
             ) {
-                items(senhas) { item ->
-                    PasswordItem(
-                        senha = item,
-                        onEdit = { senhaSelecionada ->
-                            senhaParaEditar = senhaSelecionada
-                            showDialog = true
-                        },
-                        onDelete = { senha ->
-                            senha.id.takeIf { it.isNotBlank() }?.let {
-                                db.collection("Senhas").document(it).delete()
+                senhasPorCategoria.forEach { (categoria, senhasDaCategoria) ->
+                    item {
+                        Text(
+                            text = categoria,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp,
+                            modifier = Modifier.padding(vertical = 4.dp)
+                        )
+                    }
+                    items(senhasDaCategoria) { item ->
+                        PasswordItem(
+                            senha = item,
+                            onEdit = { senhaSelecionada ->
+                                senhaParaEditar = senhaSelecionada
+                                showDialog = true
+                            },
+                            onDelete = { senha ->
+                                senha.id.takeIf { it.isNotBlank() }?.let {
+                                    db.collection("Senhas").document(it).delete()
+                                }
                             }
-                        }
-                    )
+                        )
+                    }
                 }
             }
 
@@ -156,12 +172,9 @@ fun PasswordManagerScreen() {
                         showDialog = false
                         senhaParaEditar = null
                     },
-                    onSave = { titulo, login, senha, categoria, id ->
+                    onSave = { titulo, login, senha, categoria, descricao, id ->
                         if (uid != null) {
-                            // Criptografa a senha
                             val senhaCriptografada = CryptoManager.encryptAES(senha)
-
-                            // Gera accessToken de 256 caracteres (192 bytes em Base64)
                             val tokenBytes = ByteArray(192)
                             SecureRandom().nextBytes(tokenBytes)
                             val accessToken = Base64.encodeToString(tokenBytes, Base64.NO_WRAP)
@@ -172,6 +185,7 @@ fun PasswordManagerScreen() {
                                 "login" to login,
                                 "senha" to senhaCriptografada,
                                 "categoria" to categoria,
+                                "descricao" to descricao,
                                 "accessToken" to accessToken
                             )
 
@@ -183,9 +197,7 @@ fun PasswordManagerScreen() {
                         }
                         showDialog = false
                         senhaParaEditar = null
-
                     }
-
                 )
             }
         }
@@ -245,17 +257,16 @@ fun PasswordItem(
 fun NovaSenhaDialog(
     senhaInicial: Senha? = null,
     onDismiss: () -> Unit,
-    onSave: (titulo: String, login: String, senha: String, categoria: String, id: String?) -> Unit
+    onSave: (titulo: String, login: String, senha: String, categoria: String, descricao: String, id: String?) -> Unit
 ) {
     var titulo by remember { mutableStateOf(senhaInicial?.titulo ?: "") }
     var login by remember { mutableStateOf(senhaInicial?.login ?: "") }
     var senha by remember { mutableStateOf(senhaInicial?.senha ?: "") }
-    var descricao by remember { mutableStateOf(senhaInicial?.senha ?: "") }
+    var descricao by remember { mutableStateOf(senhaInicial?.descricao ?: "") }
     var categoria by remember { mutableStateOf(senhaInicial?.categoria ?: "") }
     var expanded by remember { mutableStateOf(false) }
-
-
-    val categorias = listOf("Rede Social", "Streaming", "Banco", "E-mail", "Trabalho", "Outro")
+    val categorias = listOf("Sites Web", "Aplicativos", "Teclados de Acesso Físico")
+    var erroCamposObrigatorios by remember { mutableStateOf(false) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -266,23 +277,13 @@ fun NovaSenhaDialog(
                 OutlinedTextField(
                     value = login,
                     onValueChange = { login = it },
-                    label = {
-                        Row {
-                            Text("Login", modifier = Modifier.weight(1f))
-                            Text("(opcional)", fontSize = 12.sp)
-                        }
-                    }
+                    label = { Text("Login (opcional)") }
                 )
                 OutlinedTextField(value = senha, onValueChange = { senha = it }, label = { Text("Senha") })
                 OutlinedTextField(
                     value = descricao,
                     onValueChange = { descricao = it },
-                    label = {
-                        Row {
-                            Text("Descrição", modifier = Modifier.weight(1f))
-                            Text("(opcional)", fontSize = 12.sp)
-                        }
-                    }
+                    label = { Text("Descrição (opcional)") }
                 )
 
                 ExposedDropdownMenuBox(
@@ -311,13 +312,33 @@ fun NovaSenhaDialog(
                 }
             }
         },
+
+
+
+
         confirmButton = {
-            Button(onClick = {
-                onSave(titulo, login, senha, categoria, senhaInicial?.id)
-            }) {
-                Text("Salvar")
+            Column {
+                if (erroCamposObrigatorios) {
+                    Text(
+                        text = "Preencha todos os campos obrigatórios",
+                        color = Color.Red,
+                        fontSize = 12.sp,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                }
+                Button(onClick = {
+                    if (titulo.isBlank() || senha.isBlank() || categoria.isBlank()) {
+                        erroCamposObrigatorios = true
+                    } else {
+                        erroCamposObrigatorios = false
+                        onSave(titulo, login, senha, categoria, descricao, senhaInicial?.id)
+                    }
+                }) {
+                    Text("Salvar")
+                }
             }
         },
+
         dismissButton = {
             TextButton(onClick = onDismiss) { Text("Cancelar") }
         }
