@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.ui.platform.LocalContext
 import java.security.SecureRandom
 import androidx.compose.ui.res.painterResource
+import androidx.compose.material3.MenuAnchorType
 
 
 data class Senha(
@@ -264,8 +265,9 @@ fun NovaSenhaDialog(
     var senha by remember { mutableStateOf(senhaInicial?.senha ?: "") }
     var descricao by remember { mutableStateOf(senhaInicial?.descricao ?: "") }
     var categoria by remember { mutableStateOf(senhaInicial?.categoria ?: "") }
+    var categoriaPersonalizada by remember { mutableStateOf("") }
     var expanded by remember { mutableStateOf(false) }
-    val categorias = listOf("Sites Web", "Aplicativos", "Teclados de Acesso Físico")
+    val categorias = listOf("Sites Web", "Aplicativos", "Teclados de Acesso Físico", "Outra...")
     var erroCamposObrigatorios by remember { mutableStateOf(false) }
 
     AlertDialog(
@@ -274,17 +276,9 @@ fun NovaSenhaDialog(
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedTextField(value = titulo, onValueChange = { titulo = it }, label = { Text("Título") })
-                OutlinedTextField(
-                    value = login,
-                    onValueChange = { login = it },
-                    label = { Text("Login (opcional)") }
-                )
+                OutlinedTextField(value = login, onValueChange = { login = it }, label = { Text("Login (opcional)") })
                 OutlinedTextField(value = senha, onValueChange = { senha = it }, label = { Text("Senha") })
-                OutlinedTextField(
-                    value = descricao,
-                    onValueChange = { descricao = it },
-                    label = { Text("Descrição (opcional)") }
-                )
+                OutlinedTextField(value = descricao, onValueChange = { descricao = it }, label = { Text("Descrição (opcional)") })
 
                 ExposedDropdownMenuBox(
                     expanded = expanded,
@@ -296,7 +290,7 @@ fun NovaSenhaDialog(
                         readOnly = true,
                         label = { Text("Categoria") },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                        modifier = Modifier.menuAnchor()
+                        modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true)
                     )
                     ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                         categorias.forEach { option ->
@@ -304,18 +298,25 @@ fun NovaSenhaDialog(
                                 text = { Text(option) },
                                 onClick = {
                                     categoria = option
+                                    if (option != "Outra...") {
+                                        categoriaPersonalizada = ""
+                                    }
                                     expanded = false
                                 }
                             )
                         }
                     }
                 }
+
+                if (categoria == "Outra...") {
+                    OutlinedTextField(
+                        value = categoriaPersonalizada,
+                        onValueChange = { categoriaPersonalizada = it },
+                        label = { Text("Nova Categoria") }
+                    )
+                }
             }
         },
-
-
-
-
         confirmButton = {
             Column {
                 if (erroCamposObrigatorios) {
@@ -327,18 +328,18 @@ fun NovaSenhaDialog(
                     )
                 }
                 Button(onClick = {
-                    if (titulo.isBlank() || senha.isBlank() || categoria.isBlank()) {
+                    val categoriaFinal = if (categoria == "Outra...") categoriaPersonalizada else categoria
+                    if (titulo.isBlank() || senha.isBlank() || categoriaFinal.isBlank()) {
                         erroCamposObrigatorios = true
                     } else {
                         erroCamposObrigatorios = false
-                        onSave(titulo, login, senha, categoria, descricao, senhaInicial?.id)
+                        onSave(titulo, login, senha, categoriaFinal, descricao, senhaInicial?.id)
                     }
                 }) {
                     Text("Salvar")
                 }
             }
         },
-
         dismissButton = {
             TextButton(onClick = onDismiss) { Text("Cancelar") }
         }
