@@ -25,6 +25,12 @@ import com.google.firebase.firestore.FirebaseFirestore
 class AccountConfigActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val user = FirebaseAuth.getInstance().currentUser
+        if (user != null && !user.isEmailVerified) {
+            Toast.makeText(this, "Valide o seu e-mail.", Toast.LENGTH_LONG).show()
+        }
+
         setContent {
             SuperIDTheme {
                 TelaPerfil()
@@ -63,7 +69,6 @@ fun TelaPerfil() {
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
@@ -71,8 +76,7 @@ fun TelaPerfil() {
             Icon(
                 painter = painterResource(id = R.drawable.logo_pencil),
                 contentDescription = "Editar",
-                modifier = Modifier
-                    .size(60.dp),
+                modifier = Modifier.size(60.dp),
                 tint = Color.Unspecified
             )
 
@@ -98,7 +102,6 @@ fun TelaPerfil() {
             modifier = Modifier.size(230.dp)
         )
 
-        // Nome e Email do usuário
         Text(nomeUsuario, fontSize = 26.sp, fontWeight = FontWeight.SemiBold)
         Spacer(modifier = Modifier.height(8.dp))
         Text(emailUsuario, color = Color.DarkGray)

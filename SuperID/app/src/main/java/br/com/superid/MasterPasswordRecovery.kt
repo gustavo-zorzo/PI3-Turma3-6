@@ -24,6 +24,11 @@ import com.google.firebase.auth.FirebaseAuth
 class MasterPasswordRecovery : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val user = FirebaseAuth.getInstance().currentUser
+        if (user != null && !user.isEmailVerified) {
+            Toast.makeText(this, "Valide o seu e-mail para recuperar sua senha mestre.", Toast.LENGTH_LONG).show()
+        }
         setContent {
             SuperIDTheme {
                 PasswordRecoveryScreen()
@@ -76,16 +81,16 @@ fun PasswordRecoveryScreen() {
 
         Text(
             text = "Verifique se seu endereço de e-mail está\nvalidado.\nVocê receberá um link para a recuperação da senha.",
-            fontSize = 18.sp,
+            fontSize = 19.sp,
             color = Color(0xFF122C4F),
             lineHeight = 24.sp
         )
 
-        Spacer(modifier = Modifier.height(80.dp))
+        Spacer(modifier = Modifier.height(130.dp))
 
         Text(
             "Endereço de email:",
-            fontSize = 18.sp,
+            fontSize = 20.sp,
             color = Color(0xFF122C4F),
             fontWeight = FontWeight.Medium
         )
@@ -102,17 +107,28 @@ fun PasswordRecoveryScreen() {
             textStyle = LocalTextStyle.current.copy(fontSize = 18.sp)
         )
 
-        Spacer(modifier = Modifier.height(60.dp))
+        Spacer(modifier = Modifier.height(250.dp))
 
         Button(
             onClick = {
-                FirebaseAuth.getInstance().sendPasswordResetEmail(emailState)
-                    .addOnSuccessListener {
-                        Toast.makeText(context, "Link de recuperação enviado!", Toast.LENGTH_SHORT).show()
+                val auth = FirebaseAuth.getInstance()
+                val userReload = auth.currentUser
+
+                userReload?.reload()?.addOnSuccessListener {
+                    if (userReload.isEmailVerified) {
+                        auth.sendPasswordResetEmail(emailState)
+                            .addOnSuccessListener {
+                                Toast.makeText(context, "Link de recuperação enviado!", Toast.LENGTH_SHORT).show()
+                            }
+                            .addOnFailureListener {
+                                Toast.makeText(context, "Erro: ${it.message}", Toast.LENGTH_LONG).show()
+                            }
+                    } else {
+                        Toast.makeText(context, "Email não verificado. Por favor, verifique seu e-mail antes de recuperar a senha.", Toast.LENGTH_LONG).show()
                     }
-                    .addOnFailureListener {
-                        Toast.makeText(context, "Erro: ${it.message}", Toast.LENGTH_LONG).show()
-                    }
+                } ?: run {
+                    Toast.makeText(context, "Usuário não autenticado.", Toast.LENGTH_SHORT).show()
+                }
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -127,23 +143,5 @@ fun PasswordRecoveryScreen() {
                 color = Color.White
             )
         }
-
-        Spacer(modifier = Modifier.height(28.dp))
-
-        Text(
-            text = "Reenviar e-mail",
-            color = Color(0xFF122C4F),
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.clickable {
-                FirebaseAuth.getInstance().sendPasswordResetEmail(emailState)
-                    .addOnSuccessListener {
-                        Toast.makeText(context, "E-mail reenviado com sucesso!", Toast.LENGTH_SHORT).show()
-                    }
-                    .addOnFailureListener {
-                        Toast.makeText(context, "Erro: ${it.message}", Toast.LENGTH_LONG).show()
-                    }
-            }
-        )
     }
 }

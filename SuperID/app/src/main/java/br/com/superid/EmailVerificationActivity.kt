@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.com.superid.ui.theme.SuperIDTheme
@@ -24,6 +25,11 @@ import com.google.firebase.auth.FirebaseAuth
 class EmailVerificationActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val user = FirebaseAuth.getInstance().currentUser
+        if (user != null && !user.isEmailVerified) {
+            Toast.makeText(this, "Valide o seu e-mail.", Toast.LENGTH_LONG).show()
+        }
         setContent {
             SuperIDTheme {
                 EmailVerificationScreen()
@@ -46,6 +52,7 @@ fun EmailVerificationScreen() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
+        // Top bar
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -79,14 +86,15 @@ fun EmailVerificationScreen() {
             text = "Verifique se o endereço de e-mail está correto. \nVamos te enviar um link de confirmação.",
             fontSize = 19.sp,
             color = Color(0xFF122C4F),
-            lineHeight = 24.sp
+            lineHeight = 24.sp,
+            textAlign = TextAlign.Center
         )
 
         Spacer(modifier = Modifier.height(150.dp))
 
         Text(
             "Digite seu endereço de email:",
-            fontSize = 20   .sp,
+            fontSize = 20.sp,
             color = Color(0xFF122C4F),
             fontWeight = FontWeight.Medium
         )
@@ -105,6 +113,7 @@ fun EmailVerificationScreen() {
 
         Spacer(modifier = Modifier.height(200.dp))
 
+        // Botão para Validar e-mail
         Button(
             onClick = {
                 user?.sendEmailVerification()
@@ -131,19 +140,23 @@ fun EmailVerificationScreen() {
 
         Spacer(modifier = Modifier.height(28.dp))
 
+
         Text(
-            text = "Reenviar e-mail",
+            text = "Verificar agora",
             color = Color(0xFF122C4F),
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.clickable {
-                user?.sendEmailVerification()
-                    ?.addOnSuccessListener {
-                        Toast.makeText(context, "E-mail reenviado com sucesso!", Toast.LENGTH_SHORT).show()
+                user?.reload()?.addOnSuccessListener {
+                    if (user.isEmailVerified) {
+                        Toast.makeText(context, "E-mail verificado com sucesso!", Toast.LENGTH_SHORT).show()
+
+                    } else {
+                        Toast.makeText(context, "E-mail ainda não verificado.", Toast.LENGTH_SHORT).show()
                     }
-                    ?.addOnFailureListener {
-                        Toast.makeText(context, "Erro: ${it.message}", Toast.LENGTH_LONG).show()
-                    }
+                }?.addOnFailureListener {
+                    Toast.makeText(context, "Erro ao verificar status: ${it.message}", Toast.LENGTH_LONG).show()
+                }
             }
         )
     }

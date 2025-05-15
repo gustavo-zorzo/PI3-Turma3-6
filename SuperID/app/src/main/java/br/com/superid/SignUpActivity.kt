@@ -101,6 +101,15 @@ class SignUpActivity : ComponentActivity() {
                     val user = Firebase.auth.currentUser
                     val uid = user?.uid
 
+                    // Envia o e-mail de verificação
+                    user?.sendEmailVerification()
+                        ?.addOnSuccessListener {
+                            Toast.makeText(context, "E-mail de verificação enviado!", Toast.LENGTH_SHORT).show()
+                        }
+                        ?.addOnFailureListener {
+                            Toast.makeText(context, "Erro ao enviar verificação: ${it.message}", Toast.LENGTH_LONG).show()
+                        }
+
                     // Atualiza o nome do usuário no FirebaseAuth
                     val profileUpdates = UserProfileChangeRequest.Builder()
                         .setDisplayName(nome)
@@ -119,7 +128,6 @@ class SignUpActivity : ComponentActivity() {
                         "uid" to uid,
                         "nome" to nome,
                         "email" to email,
-                        "senha" to senhaMestre
                     )
 
                     if (uid != null) {
@@ -145,4 +153,5 @@ class SignUpActivity : ComponentActivity() {
                 }
             }
     }
+
 }

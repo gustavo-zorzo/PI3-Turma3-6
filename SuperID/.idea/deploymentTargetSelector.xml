@@ -8,16 +8,16 @@
       <SelectionState runConfigName="DashboardActivity">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="WelcomeActivity">
+      <SelectionState runConfigName="MasterPasswordRecovery">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="PasswordManagerActivity">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="MasterPasswordRecovery (1)">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
       <SelectionState runConfigName="AccountConfigActivity">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
-      <SelectionState runConfigName="EmailVerificationActivity">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
-      <SelectionState runConfigName="MasterPasswordRecovery">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>
