@@ -26,6 +26,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.ui.platform.LocalContext
 import java.security.SecureRandom
+import androidx.compose.ui.res.painterResource
+
 
 data class Senha(
     val id: String = "",
@@ -87,21 +89,33 @@ fun PasswordManagerScreen() {
             .fillMaxSize()
             .background(Color(0xFFF5F7FB))
     ) {
-        TopAppBar(
-            title = {
-                Text("Gerenciador de Senhas")
-            },
-            actions = {
-                IconButton(onClick = {
-                    activity?.finish()
-                }) {
-                    Icon(
-                        imageVector = Icons.Default.ArrowBack,
-                        contentDescription = "Voltar"
-                    )
-                }
-            }
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Título
+            Text(
+                text = "Gerenciador de Senhas",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
+            )
+
+            // Botão de voltar no canto direito
+            Icon(
+                painter = painterResource(id = R.drawable.logo_back),
+                contentDescription = "Voltar",
+                modifier = Modifier
+                    .size(65.dp)
+                    .clickable {
+                        activity?.finish()
+                    },
+                tint = Color.Unspecified
+            )
+        }
+
 
         Column(modifier = Modifier.padding(16.dp)) {
             LazyColumn(

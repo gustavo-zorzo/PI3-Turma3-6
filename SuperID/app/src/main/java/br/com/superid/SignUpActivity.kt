@@ -1,27 +1,25 @@
 package br.com.superid
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import br.com.superid.ui.theme.SuperIDTheme
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import android.util.Log
-import br.com.superid.ui.theme.SuperIDTheme
 
 private lateinit var auth: FirebaseAuth
 private val TAG = "SignUpActivityLOG"
@@ -100,9 +98,23 @@ class SignUpActivity : ComponentActivity() {
         Firebase.auth.createUserWithEmailAndPassword(email, senhaMestre)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-                    val uid = Firebase.auth.currentUser?.uid
-                    val db = Firebase.firestore
+                    val user = Firebase.auth.currentUser
+                    val uid = user?.uid
 
+                    // Atualiza o nome do usuário no FirebaseAuth
+                    val profileUpdates = UserProfileChangeRequest.Builder()
+                        .setDisplayName(nome)
+                        .build()
+
+                    user?.updateProfile(profileUpdates)
+                        ?.addOnCompleteListener { updateTask ->
+                            if (updateTask.isSuccessful) {
+                                Log.d(TAG, "Nome de usuário atualizado com sucesso.")
+                            }
+                        }
+
+                    // Salvar dados no Firestore
+                    val db = Firebase.firestore
                     val dadosUsuario = hashMapOf(
                         "uid" to uid,
                         "nome" to nome,
@@ -116,13 +128,17 @@ class SignUpActivity : ComponentActivity() {
                             .addOnSuccessListener {
                                 Log.d(TAG, "Usuário salvo com sucesso no Firestore.")
                                 Toast.makeText(context, "Cadastro completo!", Toast.LENGTH_SHORT).show()
+
+                                // Redirecionar para a Dashboard
+                                val intent = Intent(context, DashboardActivity::class.java)
+                                context.startActivity(intent)
+                                if (context is ComponentActivity) context.finish()
                             }
                             .addOnFailureListener { e ->
                                 Log.w(TAG, "Erro ao salvar no Firestore", e)
                                 Toast.makeText(context, "Erro ao salvar dados: ${e.message}", Toast.LENGTH_LONG).show()
                             }
                     }
-
                 } else {
                     Log.w(TAG, "createUserWithEmail:failure", task.exception)
                     Toast.makeText(context, "Erro ao criar conta: ${task.exception?.message}", Toast.LENGTH_LONG).show()
