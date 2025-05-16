@@ -21,7 +21,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import android.app.Activity
 import android.util.Base64
-import androidx.compose.material.icons.filled.ArrowBack
+import android.widget.Toast
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.ui.platform.LocalContext
@@ -42,6 +42,10 @@ data class Senha(
 class PasswordManagerActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val user = FirebaseAuth.getInstance().currentUser
+        if (user != null && !user.isEmailVerified) {
+            Toast.makeText(this, "Valide o seu e-mail.", Toast.LENGTH_LONG).show()
+        }
         setContent {
             SuperIDTheme {
                 PasswordManagerScreen()

@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.com.superid.ui.theme.SuperIDTheme
@@ -25,10 +26,6 @@ class MasterPasswordRecovery : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val user = FirebaseAuth.getInstance().currentUser
-        if (user != null && !user.isEmailVerified) {
-            Toast.makeText(this, "Valide o seu e-mail para recuperar sua senha mestre.", Toast.LENGTH_LONG).show()
-        }
         setContent {
             SuperIDTheme {
                 PasswordRecoveryScreen()
@@ -40,9 +37,17 @@ class MasterPasswordRecovery : ComponentActivity() {
 @Composable
 fun PasswordRecoveryScreen() {
     val context = LocalContext.current
-    val user = FirebaseAuth.getInstance().currentUser
+    val auth = FirebaseAuth.getInstance()
+    val user = auth.currentUser
     val email = user?.email ?: ""
     var emailState by remember { mutableStateOf(email) }
+    var isVerified by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        user?.reload()?.addOnSuccessListener {
+            isVerified = user.isEmailVerified
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -83,7 +88,8 @@ fun PasswordRecoveryScreen() {
             text = "Verifique se seu endereço de e-mail está\nvalidado.\nVocê receberá um link para a recuperação da senha.",
             fontSize = 19.sp,
             color = Color(0xFF122C4F),
-            lineHeight = 24.sp
+            lineHeight = 24.sp,
+            textAlign = TextAlign.Center
         )
 
         Spacer(modifier = Modifier.height(130.dp))
@@ -109,38 +115,37 @@ fun PasswordRecoveryScreen() {
 
         Spacer(modifier = Modifier.height(250.dp))
 
-        Button(
-            onClick = {
-                val auth = FirebaseAuth.getInstance()
-                val userReload = auth.currentUser
-
-                userReload?.reload()?.addOnSuccessListener {
-                    if (userReload.isEmailVerified) {
-                        auth.sendPasswordResetEmail(emailState)
-                            .addOnSuccessListener {
-                                Toast.makeText(context, "Link de recuperação enviado!", Toast.LENGTH_SHORT).show()
-                            }
-                            .addOnFailureListener {
-                                Toast.makeText(context, "Erro: ${it.message}", Toast.LENGTH_LONG).show()
-                            }
-                    } else {
-                        Toast.makeText(context, "Email não verificado. Por favor, verifique seu e-mail antes de recuperar a senha.", Toast.LENGTH_LONG).show()
-                    }
-                } ?: run {
-                    Toast.makeText(context, "Usuário não autenticado.", Toast.LENGTH_SHORT).show()
-                }
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(54.dp),
-            shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF122C4F))
-        ) {
+        if (isVerified) {
+            Button(
+                onClick = {
+                    auth.sendPasswordResetEmail(emailState)
+                        .addOnSuccessListener {
+                            Toast.makeText(context, "Link de recuperação enviado!", Toast.LENGTH_SHORT).show()
+                        }
+                        .addOnFailureListener {
+                            Toast.makeText(context, "Erro: ${it.message}", Toast.LENGTH_LONG).show()
+                        }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(54.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF122C4F))
+            ) {
+                Text(
+                    "Enviar link de recuperação",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp,
+                    color = Color.White
+                )
+            }
+        } else {
             Text(
-                "Enviar link de recuperação",
-                fontWeight = FontWeight.Bold,
-                fontSize = 18.sp,
-                color = Color.White
+                text = "Valide o seu e-mail para recuperar sua senha mestre.",
+                fontSize = 16.sp,
+                color = Color.Red,
+                fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Center
             )
         }
     }
