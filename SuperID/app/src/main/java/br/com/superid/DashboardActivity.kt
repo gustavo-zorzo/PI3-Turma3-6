@@ -60,7 +60,8 @@ fun TelaPrincipal() {
                 iconRes = R.drawable.logo_qrcode,
                 texto = "Login sem senha",
                 onClick = {
-                    // ação futura
+                    context.startActivity(Intent(context, CameraScreen::class.java))
+
                 }
             )
             OpcaoMenu(
