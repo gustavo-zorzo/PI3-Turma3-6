@@ -29,7 +29,6 @@ import java.security.SecureRandom
 import androidx.compose.ui.res.painterResource
 import androidx.compose.material3.MenuAnchorType
 
-
 data class Senha(
     val id: String = "",
     val titulo: String = "",
@@ -112,7 +111,8 @@ fun PasswordManagerScreen() {
         ) {
             Text(
                 text = "Gerencie suas senhas",
-                fontSize = 20.sp,
+                fontSize = 24.sp,
+                color = Color(0xFF122C4F),
                 fontWeight = FontWeight.Bold
             )
 
@@ -137,12 +137,20 @@ fun PasswordManagerScreen() {
             ) {
                 senhasPorCategoria.forEach { (categoria, senhasDaCategoria) ->
                     item {
-                        Text(
-                            text = categoria,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp,
-                            modifier = Modifier.padding(vertical = 4.dp)
-                        )
+                        Spacer(modifier = Modifier.height(50.dp)) // Espaçamento extra entre categorias
+
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(Color(0xFFD0E8FF)) // Fundo azul claro
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                        ) {
+                            Text(
+                                text = categoria,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 18.sp
+                            )
+                        }
                     }
                     items(senhasDaCategoria) { item ->
                         PasswordItem(
@@ -271,7 +279,7 @@ fun NovaSenhaDialog(
     var categoria by remember { mutableStateOf(senhaInicial?.categoria ?: "") }
     var categoriaPersonalizada by remember { mutableStateOf("") }
     var expanded by remember { mutableStateOf(false) }
-    val categorias = listOf("Sites Web", "Aplicativos", "Teclados de Acesso Físico", "Outra...")
+    val categorias = listOf("Sites Web", "Aplicativos", "Teclados de Acesso Físico", "Criar nova categoria")
     var erroCamposObrigatorios by remember { mutableStateOf(false) }
 
     AlertDialog(
@@ -302,7 +310,7 @@ fun NovaSenhaDialog(
                                 text = { Text(option) },
                                 onClick = {
                                     categoria = option
-                                    if (option != "Outra...") {
+                                    if (option != "Criar nova categoria") {
                                         categoriaPersonalizada = ""
                                     }
                                     expanded = false
@@ -312,11 +320,11 @@ fun NovaSenhaDialog(
                     }
                 }
 
-                if (categoria == "Outra...") {
+                if (categoria == "Criar nova categoria") {
                     OutlinedTextField(
                         value = categoriaPersonalizada,
                         onValueChange = { categoriaPersonalizada = it },
-                        label = { Text("Nova Categoria") }
+                        label = { Text("Criar nova categoria") }
                     )
                 }
             }
@@ -332,7 +340,7 @@ fun NovaSenhaDialog(
                     )
                 }
                 Button(onClick = {
-                    val categoriaFinal = if (categoria == "Outra...") categoriaPersonalizada else categoria
+                    val categoriaFinal = if (categoria == "Criar nova categoria") categoriaPersonalizada else categoria
                     if (titulo.isBlank() || senha.isBlank() || categoriaFinal.isBlank()) {
                         erroCamposObrigatorios = true
                     } else {
