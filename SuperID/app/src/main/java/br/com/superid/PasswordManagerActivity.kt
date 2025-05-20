@@ -65,7 +65,8 @@ fun PasswordManagerScreen() {
     val activity = context as? Activity
     var senhaParaEditar by remember { mutableStateOf<Senha?>(null) }
 
-    val categoriasObrigatorias = listOf("Sites Web", "Aplicativos", "Teclados de Acesso Físico")
+    val categoriasFixas = listOf("Sites Web", "Aplicativos", "Teclados de Acesso Físico")
+    var categoriasPersonalizadas by remember { mutableStateOf(setOf<String>()) }
 
     LaunchedEffect(uid) {
         uid?.let {
@@ -87,12 +88,18 @@ fun PasswordManagerScreen() {
                             descricao = doc.getString("descricao") ?: ""
                         )
                     }
+
+                    // Coleta categorias personalizadas do banco
+                    val novasCategorias = senhas.map { it.categoria }
+                        .filter { it.isNotBlank() && it !in categoriasFixas }
+                        .toSet()
+                    categoriasPersonalizadas = novasCategorias
                 }
             }
         }
     }
 
-    val todasCategorias = (senhas.map { it.categoria } + categoriasObrigatorias).toSet().sorted()
+    val todasCategorias = (senhas.map { it.categoria } + categoriasFixas).toSet().sorted()
     val senhasPorCategoria = todasCategorias.associateWith { cat ->
         senhas.filter { it.categoria == cat }
     }
@@ -137,12 +144,12 @@ fun PasswordManagerScreen() {
             ) {
                 senhasPorCategoria.forEach { (categoria, senhasDaCategoria) ->
                     item {
-                        Spacer(modifier = Modifier.height(50.dp)) // Espaçamento extra entre categorias
+                        Spacer(modifier = Modifier.height(50.dp))
 
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(Color(0xFFD0E8FF)) // Fundo azul claro
+                                .background(Color(0xFFD0E8FF))
                                 .padding(horizontal = 8.dp, vertical = 4.dp)
                         ) {
                             Text(
@@ -181,6 +188,7 @@ fun PasswordManagerScreen() {
             if (showDialog) {
                 NovaSenhaDialog(
                     senhaInicial = senhaParaEditar,
+                    categoriasDisponiveis = categoriasFixas + categoriasPersonalizadas.toList(),
                     onDismiss = {
                         showDialog = false
                         senhaParaEditar = null
@@ -206,6 +214,10 @@ fun PasswordManagerScreen() {
                                 db.collection("Senhas").document(id).set(dados)
                             } else {
                                 db.collection("Senhas").add(dados)
+                            }
+
+                            if (categoria !in categoriasFixas) {
+                                categoriasPersonalizadas = categoriasPersonalizadas + categoria
                             }
                         }
                         showDialog = false
@@ -269,6 +281,7 @@ fun PasswordItem(
 @Composable
 fun NovaSenhaDialog(
     senhaInicial: Senha? = null,
+    categoriasDisponiveis: List<String>,
     onDismiss: () -> Unit,
     onSave: (titulo: String, login: String, senha: String, categoria: String, descricao: String, id: String?) -> Unit
 ) {
@@ -279,8 +292,9 @@ fun NovaSenhaDialog(
     var categoria by remember { mutableStateOf(senhaInicial?.categoria ?: "") }
     var categoriaPersonalizada by remember { mutableStateOf("") }
     var expanded by remember { mutableStateOf(false) }
-    val categorias = listOf("Sites Web", "Aplicativos", "Teclados de Acesso Físico", "Criar nova categoria")
     var erroCamposObrigatorios by remember { mutableStateOf(false) }
+
+    val categorias = categoriasDisponiveis + "Criar nova categoria"
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -324,7 +338,7 @@ fun NovaSenhaDialog(
                     OutlinedTextField(
                         value = categoriaPersonalizada,
                         onValueChange = { categoriaPersonalizada = it },
-                        label = { Text("Criar nova categoria") }
+                        label = { Text("Nova Categoria") }
                     )
                 }
             }
