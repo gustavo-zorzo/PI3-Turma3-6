@@ -89,7 +89,6 @@ fun PasswordManagerScreen() {
                         )
                     }
 
-                    // Coleta categorias personalizadas do banco
                     val novasCategorias = senhas.map { it.categoria }
                         .filter { it.isNotBlank() && it !in categoriasFixas }
                         .toSet()
@@ -236,45 +235,82 @@ fun PasswordItem(
     onDelete: (Senha) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
+    var showVisualizarDialog by remember { mutableStateOf(false) }
 
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Color.White)
-            .padding(12.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column {
-            Text("${senha.titulo} (${senha.categoria})", fontWeight = FontWeight.Bold)
-            Text(senha.login)
+    Column {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color(0xFFE6F2FF))
+                .padding(12.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column {
+                Text(senha.titulo, fontWeight = FontWeight.Bold)
+            }
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                IconButton(onClick = { showVisualizarDialog = true }) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.logo_olho),
+                        contentDescription = "Visualizar senha",
+                        modifier = Modifier.size(33.dp)
+                    )
+                }
+
+                Box {
+                    IconButton(onClick = { expanded = true }) {
+                        Icon(Icons.Default.MoreVert, contentDescription = "Mais opções")
+                    }
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Editar") },
+                            onClick = {
+                                expanded = false
+                                onEdit(senha)
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Excluir") },
+                            onClick = {
+                                expanded = false
+                                onDelete(senha)
+                            }
+                        )
+                    }
+                }
+            }
         }
 
-        Box {
-            IconButton(onClick = { expanded = true }) {
-                Icon(Icons.Default.MoreVert, contentDescription = "Mais opções")
-            }
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
-                DropdownMenuItem(
-                    text = { Text("Editar") },
-                    onClick = {
-                        expanded = false
-                        onEdit(senha)
-                    }
-                )
-                DropdownMenuItem(
-                    text = { Text("Excluir") },
-                    onClick = {
-                        expanded = false
-                        onDelete(senha)
-                    }
-                )
-            }
+        if (showVisualizarDialog) {
+            VisualizarSenhaDialog(senha = senha, onDismiss = { showVisualizarDialog = false })
         }
     }
+}
+
+
+@Composable
+fun VisualizarSenhaDialog(senha: Senha, onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Detalhes da Senha") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Título: ${senha.titulo}")
+                Text("Login: ${senha.login}")
+                Text("Senha: ${senha.senha}")
+                Text("Categoria: ${senha.categoria}")
+                Text("Descrição: ${senha.descricao}")
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) { Text("Fechar") }
+        }
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
