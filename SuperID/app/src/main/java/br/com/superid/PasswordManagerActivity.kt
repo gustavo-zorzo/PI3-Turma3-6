@@ -1,6 +1,7 @@
 package br.com.superid
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -8,26 +9,24 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.com.superid.ui.theme.SuperIDTheme
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import java.security.SecureRandom
 import android.app.Activity
 import android.util.Base64
-import android.widget.Toast
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.ui.platform.LocalContext
-import java.security.SecureRandom
-import androidx.compose.ui.res.painterResource
-import androidx.compose.material3.MenuAnchorType
 
 data class Senha(
     val id: String = "",
@@ -64,7 +63,6 @@ fun PasswordManagerScreen() {
     val context = LocalContext.current
     val activity = context as? Activity
     var senhaParaEditar by remember { mutableStateOf<Senha?>(null) }
-
     val categoriasFixas = listOf("Sites Web", "Aplicativos", "Teclados de Acesso Físico")
     var categoriasPersonalizadas by remember { mutableStateOf(setOf<String>()) }
 
@@ -88,7 +86,6 @@ fun PasswordManagerScreen() {
                             descricao = doc.getString("descricao") ?: ""
                         )
                     }
-
                     val novasCategorias = senhas.map { it.categoria }
                         .filter { it.isNotBlank() && it !in categoriasFixas }
                         .toSet()
@@ -106,127 +103,112 @@ fun PasswordManagerScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF5F7FB))
+            .background(MaterialTheme.colorScheme.background)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+        TopAppBar(
+            title = {
+                Text("Gerenciador de Senhas", fontWeight = FontWeight.Bold)
+            },
+            navigationIcon = {
+                Icon(
+                    painter = painterResource(id = R.drawable.logo_back),
+                    contentDescription = "Voltar",
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .size(32.dp)
+                        .clickable { activity?.finish() },
+                    tint = Color.Unspecified
+                )
+            },
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer
+            )
+        )
+
+        LazyColumn(
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.weight(1f)
         ) {
-            Text(
-                text = "Gerencie suas senhas",
-                fontSize = 24.sp,
-                color = Color(0xFF122C4F),
-                fontWeight = FontWeight.Bold
-            )
-
-            Icon(
-                painter = painterResource(id = R.drawable.logo_back),
-                contentDescription = "Voltar",
-                modifier = Modifier
-                    .size(65.dp)
-                    .clickable {
-                        activity?.finish()
-                    },
-                tint = Color.Unspecified
-            )
-        }
-
-        Column(modifier = Modifier.padding(16.dp)) {
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(top = 16.dp)
-            ) {
-                senhasPorCategoria.forEach { (categoria, senhasDaCategoria) ->
-                    item {
-                        Spacer(modifier = Modifier.height(50.dp))
-
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(Color(0xFFD0E8FF))
-                                .padding(horizontal = 8.dp, vertical = 4.dp)
-                        ) {
-                            Text(
-                                text = categoria,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 18.sp
-                            )
-                        }
-                    }
-                    items(senhasDaCategoria) { item ->
-                        PasswordItem(
-                            senha = item,
-                            onEdit = { senhaSelecionada ->
-                                senhaParaEditar = senhaSelecionada
-                                showDialog = true
-                            },
-                            onDelete = { senha ->
-                                senha.id.takeIf { it.isNotBlank() }?.let {
-                                    db.collection("Senhas").document(it).delete()
-                                }
+            senhasPorCategoria.forEach { (categoria, senhasDaCategoria) ->
+                item {
+                    Spacer(modifier = Modifier.height(50.dp))
+                    Text(
+                        text = categoria,
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.secondaryContainer)
+                            .padding(horizontal = 12.dp, vertical = 6.dp)
+                    )
+                }
+                items(senhasDaCategoria) { item ->
+                    PasswordItem(
+                        senha = item,
+                        onEdit = {
+                            senhaParaEditar = it
+                            showDialog = true
+                        },
+                        onDelete = {
+                            if (it.id.isNotBlank()) {
+                                db.collection("Senhas").document(it.id).delete()
                             }
-                        )
-                    }
+                        }
+                    )
                 }
             }
+        }
 
-            Button(
-                onClick = { showDialog = true },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp)
-            ) {
-                Text("Nova Senha", fontWeight = FontWeight.Bold)
-            }
-
-            if (showDialog) {
-                NovaSenhaDialog(
-                    senhaInicial = senhaParaEditar,
-                    categoriasDisponiveis = categoriasFixas + categoriasPersonalizadas.toList(),
-                    onDismiss = {
-                        showDialog = false
-                        senhaParaEditar = null
-                    },
-                    onSave = { titulo, login, senha, categoria, descricao, id ->
-                        if (uid != null) {
-                            val senhaCriptografada = CryptoManager.encryptAES(senha)
-                            val tokenBytes = ByteArray(192)
-                            SecureRandom().nextBytes(tokenBytes)
-                            val accessToken = Base64.encodeToString(tokenBytes, Base64.NO_WRAP)
-
-                            val dados = mapOf(
-                                "uid" to uid,
-                                "titulo" to titulo,
-                                "login" to login,
-                                "senha" to senhaCriptografada,
-                                "categoria" to categoria,
-                                "descricao" to descricao,
-                                "accessToken" to accessToken
-                            )
-
-                            if (id != null) {
-                                db.collection("Senhas").document(id).set(dados)
-                            } else {
-                                db.collection("Senhas").add(dados)
-                            }
-
-                            if (categoria !in categoriasFixas) {
-                                categoriasPersonalizadas = categoriasPersonalizadas + categoria
-                            }
-                        }
-                        showDialog = false
-                        senhaParaEditar = null
-                    }
-                )
-            }
+        Button(
+            onClick = { showDialog = true },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+                .height(56.dp)
+        ) {
+            Text("Adicionar Nova Senha", fontWeight = FontWeight.Bold)
         }
     }
+
+    if (showDialog) {
+        NovaSenhaDialog(
+            senhaInicial = senhaParaEditar,
+            categoriasDisponiveis = categoriasFixas + categoriasPersonalizadas.toList(),
+            onDismiss = {
+                showDialog = false
+                senhaParaEditar = null
+            },
+            onSave = { titulo, login, senha, categoria, descricao, id ->
+                if (uid != null) {
+                    val senhaCriptografada = CryptoManager.encryptAES(senha)
+                    val tokenBytes = ByteArray(192)
+                    SecureRandom().nextBytes(tokenBytes)
+                    val accessToken = Base64.encodeToString(tokenBytes, Base64.NO_WRAP)
+                    val dados = mapOf(
+                        "uid" to uid,
+                        "titulo" to titulo,
+                        "login" to login,
+                        "senha" to senhaCriptografada,
+                        "categoria" to categoria,
+                        "descricao" to descricao,
+                        "accessToken" to accessToken
+                    )
+                    if (id != null) {
+                        db.collection("Senhas").document(id).set(dados)
+                    } else {
+                        db.collection("Senhas").add(dados)
+                    }
+                    if (categoria !in categoriasFixas) {
+                        categoriasPersonalizadas = categoriasPersonalizadas + categoria
+                    }
+                }
+                showDialog = false
+                senhaParaEditar = null
+            }
+        )
+    }
 }
+
 
 @Composable
 fun PasswordItem(
