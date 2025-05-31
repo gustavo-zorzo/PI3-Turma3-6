@@ -1,5 +1,6 @@
 package br.com.superid
 
+
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
@@ -22,15 +23,18 @@ import br.com.superid.ui.theme.SuperIDTheme
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
+// Tela de configurações da conta do usuário
 class AccountConfigActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // Verifica se o usuário está com e-mail validado
         val user = FirebaseAuth.getInstance().currentUser
         if (user != null && !user.isEmailVerified) {
             Toast.makeText(this, "Valide o seu e-mail.", Toast.LENGTH_LONG).show()
         }
 
+        // Define o conteúdo da tela com o tema
         setContent {
             SuperIDTheme {
                 TelaPerfil()
@@ -47,9 +51,9 @@ fun TelaPerfil() {
 
     val emailUsuario = auth.currentUser?.email ?: "Email não disponível"
     val uid = auth.currentUser?.uid
-
     var nomeUsuario by remember { mutableStateOf("Carregando...") }
 
+    // Busca o nome do usuário no Firestore ao abrir a tela
     LaunchedEffect(uid) {
         uid?.let {
             firestore.collection("Usuario").document(it)
@@ -63,16 +67,19 @@ fun TelaPerfil() {
         }
     }
 
+    // Layout principal da tela
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        // Barra superior com ícones
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
+            // Ícone de editar (sem ação associada por enquanto)
             Icon(
                 painter = painterResource(id = R.drawable.logo_pencil),
                 contentDescription = "Editar",
@@ -80,6 +87,7 @@ fun TelaPerfil() {
                 tint = Color.Unspecified
             )
 
+            // Ícone de voltar para o Dashboard
             Icon(
                 painter = painterResource(id = R.drawable.logo_back),
                 contentDescription = "Voltar",
@@ -96,18 +104,21 @@ fun TelaPerfil() {
 
         Spacer(modifier = Modifier.height(15.dp))
 
+        // Avatar
         Image(
             painter = painterResource(id = R.drawable.logo_icon),
             contentDescription = "Avatar",
             modifier = Modifier.size(230.dp)
         )
 
+        // Nome e e-mail do usuário
         Text(nomeUsuario, fontSize = 26.sp, fontWeight = FontWeight.SemiBold)
         Spacer(modifier = Modifier.height(8.dp))
         Text(emailUsuario, color = Color.DarkGray)
 
         Spacer(modifier = Modifier.height(80.dp))
 
+        // Menu de ações do perfil
         HorizontalDivider()
         ProfileButton("Validar e-mail") {
             val intent = Intent(context, EmailVerificationActivity::class.java)
@@ -122,6 +133,7 @@ fun TelaPerfil() {
 
         Spacer(modifier = Modifier.height(160.dp))
 
+        // logout
         Text(
             text = "Sair da conta",
             color = Color(0xFF122C4F),
@@ -139,6 +151,7 @@ fun TelaPerfil() {
 
 @Composable
 fun ProfileButton(titulo: String, onClick: () -> Unit) {
+
     Row(
         modifier = Modifier
             .fillMaxWidth()

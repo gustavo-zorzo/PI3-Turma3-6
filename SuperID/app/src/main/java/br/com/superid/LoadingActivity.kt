@@ -1,5 +1,6 @@
 package br.com.superid
 
+
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
@@ -21,14 +22,21 @@ import androidx.compose.ui.unit.dp
 import br.com.superid.ui.theme.SuperIDTheme
 import kotlinx.coroutines.delay
 
+
 private const val SPLASH_TIMEOUT_MS: Long = 3000L
+
 private const val PROGRESS_UPDATE_INTERVAL_MS: Long = 50L
 
 @SuppressLint("CustomSplashScreen")
+// Activity de carregamento inicial (
 class LoadingActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+
         requestWindowFeature(Window.FEATURE_NO_TITLE)
+
+        // Define o conteúdo da tela com o tema
         setContent {
             SuperIDTheme {
                 LoadingScreen(
@@ -40,16 +48,21 @@ class LoadingActivity : ComponentActivity() {
         }
     }
 
+    // Navega para a próxima tela após o carregamento
     private fun navigateToWelcomeActivity() {
         startActivity(Intent(this@LoadingActivity, TermsActivity::class.java))
-        finish()
+        finish() // Finaliza a splash screen
     }
 }
 
 @Composable
 fun LoadingScreen(onTimeout: () -> Unit) {
+
     var progress by remember { mutableFloatStateOf(0f) }
+
+
     val totalSteps = (SPLASH_TIMEOUT_MS / PROGRESS_UPDATE_INTERVAL_MS).toInt()
+
 
     LaunchedEffect(Unit) {
         for (i in 1..totalSteps) {
@@ -60,6 +73,7 @@ fun LoadingScreen(onTimeout: () -> Unit) {
         onTimeout()
     }
 
+    // Interface da tela
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = Color.White
@@ -72,12 +86,16 @@ fun LoadingScreen(onTimeout: () -> Unit) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
+                // Logo do SuperID
                 Image(
                     painter = painterResource(id = R.drawable.logo_superid),
                     contentDescription = "SuperID Logo",
                     modifier = Modifier.size(200.dp)
                 )
+
                 Spacer(modifier = Modifier.height(48.dp))
+
+                // Barra de progresso animada
                 LinearProgressIndicator(
                     progress = { progress },
                     modifier = Modifier
@@ -92,6 +110,7 @@ fun LoadingScreen(onTimeout: () -> Unit) {
     }
 }
 
+// Preview do composable para visualização no Android Studio
 @Preview(showBackground = true)
 @Composable
 fun LoadingScreenPreview() {

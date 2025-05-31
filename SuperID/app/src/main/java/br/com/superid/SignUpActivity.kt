@@ -31,6 +31,7 @@ import androidx.compose.ui.text.font.FontWeight
 private lateinit var auth: FirebaseAuth
 private val TAG = "SignUpActivityLOG"
 
+//activity da tela de cadastro
 class SignUpActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -169,7 +170,7 @@ class SignUpActivity : ComponentActivity() {
             }
         }
     }
-
+//funcao para vincular o firebaseauth com o app
     fun cadastrarUsuario(nome: String, email: String, senhaMestre: String, context: android.content.Context) {
         Firebase.auth.createUserWithEmailAndPassword(email, senhaMestre)
             .addOnCompleteListener(this) { task ->

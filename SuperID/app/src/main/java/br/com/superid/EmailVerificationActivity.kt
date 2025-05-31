@@ -1,5 +1,6 @@
 package br.com.superid
 
+
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -22,14 +23,18 @@ import androidx.compose.ui.unit.sp
 import br.com.superid.ui.theme.SuperIDTheme
 import com.google.firebase.auth.FirebaseAuth
 
+// Activity que exibe a tela de validação de e-mail
 class EmailVerificationActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // Exibe um aviso se o usuário estiver logado, mas não tiver verificado o e-mail
         val user = FirebaseAuth.getInstance().currentUser
         if (user != null && !user.isEmailVerified) {
             Toast.makeText(this, "Valide o seu e-mail.", Toast.LENGTH_LONG).show()
         }
+
+        // Define o conteúdo da tela com tema
         setContent {
             SuperIDTheme {
                 EmailVerificationScreen()
@@ -51,8 +56,7 @@ fun EmailVerificationScreen() {
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
-        // Top bar
+        // Cabeçalho com título e botão de voltar
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -64,7 +68,6 @@ fun EmailVerificationScreen() {
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF122C4F)
             )
-
             Icon(
                 painter = painterResource(id = R.drawable.logo_back),
                 contentDescription = "Voltar",
@@ -82,6 +85,7 @@ fun EmailVerificationScreen() {
 
         Spacer(modifier = Modifier.height(32.dp))
 
+        // Instrução para o usuário
         Text(
             text = "Verifique se o endereço de e-mail está correto. \nVamos te enviar um link de confirmação.",
             fontSize = 19.sp,
@@ -92,6 +96,7 @@ fun EmailVerificationScreen() {
 
         Spacer(modifier = Modifier.height(150.dp))
 
+        //  campo de e-mail
         Text(
             "Digite seu endereço de email:",
             fontSize = 20.sp,
@@ -101,6 +106,7 @@ fun EmailVerificationScreen() {
 
         Spacer(modifier = Modifier.height(12.dp))
 
+        // Campo de entrada de e-mail
         OutlinedTextField(
             value = emailState,
             onValueChange = { emailState = it },
@@ -113,7 +119,7 @@ fun EmailVerificationScreen() {
 
         Spacer(modifier = Modifier.height(200.dp))
 
-        // Botão para Validar e-mail
+        // Botão para enviar link de verificação
         Button(
             onClick = {
                 user?.sendEmailVerification()
@@ -140,7 +146,7 @@ fun EmailVerificationScreen() {
 
         Spacer(modifier = Modifier.height(28.dp))
 
-
+        // Link para o usuário verificar se o e-mail já foi validado
         Text(
             text = "Verificar agora",
             color = Color(0xFF122C4F),
@@ -150,7 +156,7 @@ fun EmailVerificationScreen() {
                 user?.reload()?.addOnSuccessListener {
                     if (user.isEmailVerified) {
                         Toast.makeText(context, "E-mail verificado com sucesso!", Toast.LENGTH_SHORT).show()
-
+                        // Aqui poderia redirecionar para outra tela
                     } else {
                         Toast.makeText(context, "E-mail ainda não verificado.", Toast.LENGTH_SHORT).show()
                     }

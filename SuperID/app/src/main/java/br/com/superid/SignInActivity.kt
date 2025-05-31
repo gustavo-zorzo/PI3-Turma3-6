@@ -1,5 +1,6 @@
 package br.com.superid
 
+
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
@@ -32,13 +33,16 @@ import androidx.compose.ui.unit.sp
 import br.com.superid.ui.theme.SuperIDTheme
 import com.google.firebase.auth.FirebaseAuth
 
+//activity da tela de login
 class SignInActivity : ComponentActivity() {
+
     private val auth: FirebaseAuth by lazy { FirebaseAuth.getInstance() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             SuperIDTheme {
+
                 LoginScreen(
                     onLoginSuccess = {
                         startActivity(Intent(this, DashboardActivity::class.java))
@@ -54,32 +58,35 @@ class SignInActivity : ComponentActivity() {
         }
     }
 
+
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun LoginScreen(
         onLoginSuccess: () -> Unit,
         onForgotPasswordClick: () -> Unit
     ) {
+
         var email by remember { mutableStateOf("") }
         var password by remember { mutableStateOf("") }
+
         val context = LocalContext.current
         val focusManager = LocalFocusManager.current
 
         Scaffold(
             topBar = {
+                // Barra superior com botão de voltar
                 TopAppBar(
                     title = {},
                     navigationIcon = {
                         IconButton(
-                            onClick = { finish() },
+                            onClick = { finish() }, // Fecha a activity ao voltar
                             modifier = Modifier.size(65.dp)
                         ) {
                             Box(modifier = Modifier.fillMaxSize()) {
                                 Image(
                                     painter = painterResource(id = R.drawable.logo_back),
                                     contentDescription = "Voltar",
-                                    modifier = Modifier
-                                        .fillMaxSize(),
+                                    modifier = Modifier.fillMaxSize(),
                                     contentScale = ContentScale.Fit
                                 )
                             }
@@ -90,7 +97,6 @@ class SignInActivity : ComponentActivity() {
                         navigationIconContentColor = Color.Black
                     )
                 )
-
             },
             containerColor = Color.White
         ) { padding ->
@@ -102,6 +108,7 @@ class SignInActivity : ComponentActivity() {
                     .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                // Logo do app
                 Image(
                     painter = painterResource(id = R.drawable.logo_superid),
                     contentDescription = "Logo",
@@ -110,6 +117,7 @@ class SignInActivity : ComponentActivity() {
                         .padding(top = 16.dp)
                 )
 
+                // Texto de boas-vindas
                 Text(
                     text = "Bem-vindo ao SuperID!",
                     color = Color(0xFF0E2F5A),
@@ -121,6 +129,7 @@ class SignInActivity : ComponentActivity() {
 
                 Spacer(modifier = Modifier.height(80.dp))
 
+                // Título do formulário
                 Text(
                     text = "Coloque o Login de sua conta:",
                     fontSize = 18.sp,
@@ -131,6 +140,7 @@ class SignInActivity : ComponentActivity() {
                         .padding(bottom = 8.dp)
                 )
 
+                // Campo de email
                 OutlinedTextField(
                     value = email,
                     onValueChange = { email = it },
@@ -149,6 +159,7 @@ class SignInActivity : ComponentActivity() {
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                // Campo de senha
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
@@ -169,9 +180,9 @@ class SignInActivity : ComponentActivity() {
                     )
                 )
 
-
                 Spacer(modifier = Modifier.height(110.dp))
 
+                // Botão de login
                 Button(
                     onClick = {
                         loginWithFirebase(email, password, context, onLoginSuccess)
@@ -187,6 +198,7 @@ class SignInActivity : ComponentActivity() {
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                // Link para recuperação de senha
                 Text(
                     text = "Esqueci minha senha",
                     color = Color(0xFF0E2F5A),
@@ -201,6 +213,7 @@ class SignInActivity : ComponentActivity() {
         }
     }
 
+    // Função que realiza login com Firebase Auth
     private fun loginWithFirebase(
         email: String,
         password: String,

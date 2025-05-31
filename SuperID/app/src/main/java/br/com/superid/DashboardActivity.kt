@@ -22,18 +22,21 @@ import androidx.compose.ui.text.font.FontWeight
 import br.com.superid.ui.theme.SuperIDTheme
 import com.google.firebase.auth.FirebaseAuth
 
+// Tela principal do usuário após login  Dashboard
 class DashboardActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // Verifica se o e-mail do usuário está verificado e exibe aviso, se necessário
         val user = FirebaseAuth.getInstance().currentUser
         if (user != null && !user.isEmailVerified) {
             Toast.makeText(this, "Valide o seu e-mail.", Toast.LENGTH_LONG).show()
         }
 
+        // Define o conteúdo da tela com tema do app
         setContent {
             SuperIDTheme {
-                TelaPrincipal()
+                TelaPrincipal() // Composable principal da dashboard
             }
         }
     }
@@ -48,22 +51,25 @@ fun TelaPrincipal() {
             .fillMaxSize()
             .background(Color.White)
     ) {
-        TopAppBarContent()
+        TopAppBarContent() // Logo no topo da tela
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // Lista de opções do menu
         Column(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            // Botão para funcionalidade de login sem senha via QR Code
             OpcaoMenu(
                 iconRes = R.drawable.logo_qrcode,
                 texto = "Login sem senha",
                 onClick = {
                     context.startActivity(Intent(context, CameraScreen::class.java))
-
                 }
             )
+
+            // Botão para acessar o gerenciador de senhas
             OpcaoMenu(
                 iconRes = R.drawable.logo_senha,
                 texto = "Gerenciar senhas",
@@ -71,6 +77,8 @@ fun TelaPrincipal() {
                     context.startActivity(Intent(context, PasswordManagerActivity::class.java))
                 }
             )
+
+            // Botão para configurações da conta
             OpcaoMenu(
                 iconRes = R.drawable.logo_conf,
                 texto = "Configurar conta",
@@ -92,6 +100,7 @@ fun TopAppBarContent() {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
+        // Logo grande do SuperID na parte superior
         Image(
             painter = painterResource(id = R.drawable.logo_superidauth),
             contentDescription = "Logo",
@@ -104,6 +113,7 @@ fun TopAppBarContent() {
 
 @Composable
 fun OpcaoMenu(iconRes: Int, texto: String, onClick: () -> Unit) {
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -118,6 +128,10 @@ fun OpcaoMenu(iconRes: Int, texto: String, onClick: () -> Unit) {
             modifier = Modifier.size(80.dp)
         )
         Spacer(modifier = Modifier.height(12.dp))
-        Text(texto, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+        Text(
+            text = texto,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold
+        )
     }
 }

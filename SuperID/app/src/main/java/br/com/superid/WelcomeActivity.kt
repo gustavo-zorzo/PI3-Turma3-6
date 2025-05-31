@@ -1,6 +1,5 @@
 package br.com.superid
 
-
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -24,10 +23,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.com.superid.ui.theme.SuperIDTheme
 
-
+//activity da tela de boas vindas
 class WelcomeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             SuperIDTheme {
                 WelcomeScreen()
@@ -35,6 +35,7 @@ class WelcomeActivity : ComponentActivity() {
         }
     }
 }
+
 
 @Composable
 fun WelcomeScreen() {
@@ -46,25 +47,26 @@ fun WelcomeScreen() {
             .fillMaxSize()
             .background(backgroundColor)
     ) {
-        // Fundo com círculos
+        // Desenho de círculos decorativos no fundo da tela
         Canvas(modifier = Modifier.fillMaxSize()) {
             drawCircle(Color(0xFF153560), 400f, Offset(200f, 400f))
             drawCircle(Color(0xFF153560), 300f, Offset(size.width - 100f, size.height - 200f))
         }
 
+        // Coluna central que organiza o conteúdo verticalmente
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Header()
+            Header() // título e logo
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            DescriptionCircle()
+            DescriptionCircle() // Circulo com descrição do app
 
-            // Botão de cadastro
+            // Botão que leva para a tela de cadastro
             ActionButton(
                 text = "Cadastre-se",
                 onClick = { context.startActivity(Intent(context, SignUpActivity::class.java)) }
@@ -72,7 +74,7 @@ fun WelcomeScreen() {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Botão de login
+            // Botão que leva para a tela de login
             ActionButton(
                 text = "Login",
                 onClick = { context.startActivity(Intent(context, SignInActivity::class.java)) }
@@ -81,6 +83,7 @@ fun WelcomeScreen() {
     }
 }
 
+// tela com título de boas-vindas e o logo do aplicativo
 @Composable
 fun Header() {
     Box(
@@ -88,7 +91,7 @@ fun Header() {
             .fillMaxWidth()
             .padding(top = 32.dp)
     ) {
-        // Título principal
+        // Texto de boas-vindas
         Text(
             text = "Bem vindo ao SuperID!",
             fontSize = 24.sp,
@@ -98,7 +101,7 @@ fun Header() {
                 .align(Alignment.CenterStart)
                 .padding(start = 8.dp)
         )
-        // logo no topo direito
+        // Logo do app dentro de um círculo no canto superior direito
         Box(
             modifier = Modifier
                 .size(100.dp)
@@ -116,9 +119,9 @@ fun Header() {
     }
 }
 
+
 @Composable
 fun DescriptionCircle() {
-    // Texto dentro do circulo do meio
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -126,6 +129,7 @@ fun DescriptionCircle() {
             .height(500.dp),
         contentAlignment = Alignment.Center
     ) {
+        // Círculo de fundo para destacar o texto
         Canvas(modifier = Modifier.matchParentSize()) {
             drawCircle(
                 color = Color(0xFF0D1F37),
@@ -134,6 +138,7 @@ fun DescriptionCircle() {
             )
         }
 
+        // Texto explicativo sobre o aplicativo
         Text(
             text = """
                 O SuperID é a maneira mais 
@@ -161,9 +166,9 @@ fun DescriptionCircle() {
     }
 }
 
+// Componente reutilizável para os botões de "Cadastre-se" e "Login"
 @Composable
 fun ActionButton(text: String, onClick: () -> Unit) {
-    // Botões com cor (cadastro e login)
     Button(
         onClick = onClick,
         shape = RoundedCornerShape(20.dp),
