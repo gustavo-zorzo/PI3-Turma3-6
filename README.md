@@ -10,21 +10,21 @@ Assista à demonstração do aplicativo clicando no link abaixo:
 🔗 [https://www.youtube.com/shorts/5mz1JODzWwY](https://www.youtube.com/shorts/5mz1JODzWwY)
 
 
-##👥 Integrantes
+## 👥 Integrantes
 
-###- 👨‍💻 [**Gustavo Albiero Zorzo**](https://github.com/gustavo-zorzo)
+### - 👨‍💻 [**Gustavo Albiero Zorzo**](https://github.com/gustavo-zorzo)
   
-###- 👨‍💻 [**Henrique Gambin Di Celio**](https://github.com/HenriqueGambin)
+### - 👨‍💻 [**Henrique Gambin Di Celio**](https://github.com/HenriqueGambin)
   
-###- 👨‍💻 [**Leonardo Mateus de Oliveira Vicente**](https://github.com/leozinv)
+### - 👨‍💻 [**Leonardo Mateus de Oliveira Vicente**](https://github.com/leozinv)
 
-###- 👨‍💻 [**Gabriel Lopes Londe Rodrigues**](https://github.com/Lopesloro)
+### - 👨‍💻 [**Gabriel Lopes Londe Rodrigues**](https://github.com/Lopesloro)
   
-###- 👩‍💻 [**Beatriz Kamien Tehzy**](https://github.com/Beaktz)
+### - 👩‍💻 [**Beatriz Kamien Tehzy**](https://github.com/Beaktz)
 
   
-##🛠 Tecnologias Utilizadas
-###O projeto foi desenvolvido utilizando as seguintes tecnologias e ferramentas:
+## 🛠 Tecnologias Utilizadas
+### O projeto foi desenvolvido utilizando as seguintes tecnologias e ferramentas:
 
 Kotlin com Jetpack Compose
 
@@ -34,7 +34,7 @@ Android Studio
 
 Git e GitHub para controle de versão
 
-##🚀 Como Executar
+## 🚀 Como Executar
 Para executar o projeto localmente, siga os passos abaixo:
 
 Clone este repositório:
@@ -47,7 +47,7 @@ Certifique-se de que todas as dependências foram corretamente instaladas e o Fi
 Execute em um emulador ou dispositivo físico com Android.
 
 
-##📌 Funcionalidades
+## 📌 Funcionalidades
 Cadastro e login de usuários
 
 Armazenamento e organização de senhas por categoria
@@ -62,5 +62,5 @@ Interface moderna e responsiva
 
 
 
-##📄 Licença
+## 📄 Licença
 Este projeto está licenciado sob a licença GNU GENERAL PUBLIC LICENSE. Consulte o arquivo LICENSE para mais informações.
