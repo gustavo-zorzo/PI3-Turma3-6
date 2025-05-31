@@ -1,5 +1,6 @@
-#📦 Super ID
-###Este projeto foi desenvolvido como parte da disciplina de Projeto Integrador III do curso de Engenharia de Software na PUC-Campinas. O objetivo principal é desenvolver um aplicativo para gerenciamento de senhas pessoais com categorias personalizáveis e armazenamento seguro de dados.
+
+# 📦 Super ID
+### Este projeto foi desenvolvido como parte da disciplina de Projeto Integrador III do curso de Engenharia de Software na PUC-Campinas. O objetivo principal é desenvolver um aplicativo para gerenciamento de senhas pessoais com categorias personalizáveis e armazenamento seguro de dados.
 
 
 ## 📽️ Vídeo de Apresentação
