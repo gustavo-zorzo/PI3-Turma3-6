@@ -38,7 +38,7 @@ Git e GitHub para controle de versão
 Para executar o projeto localmente, siga os passos abaixo:
 
 Clone este repositório:
-git clone https://github.com/SeuUsuario/SeuRepositorio.git
+git clone https://github.com/gustavo-zorzo/PI3-Turma3-6.git
 
 Abra o projeto no Android Studio.
 
