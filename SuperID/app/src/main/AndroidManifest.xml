@@ -3,8 +3,6 @@
     package="br.com.superid">
 
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-feature android:name="android.hardware.camera.any"/>
 
     <application
@@ -20,7 +18,7 @@
 
         <!-- Tela inicial -->
         <activity
-            android:name=".WelcomeActivity"
+            android:name=".LoadingActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -38,9 +36,19 @@
             android:name=".SignInActivity"
             android:exported="true" />
 
+        <!-- Tela de bem-vindo -->
+        <activity
+            android:name=".WelcomeActivity"
+            android:exported="true" />
+
         <!-- Tela de gerenciamento de senhas -->
         <activity
             android:name=".PasswordManagerActivity"
+            android:exported="true" />
+
+        <!-- Tela de termo  -->
+        <activity
+            android:name=".TermsActivity"
             android:exported="true" />
 
         <!-- Tela dashboard -->

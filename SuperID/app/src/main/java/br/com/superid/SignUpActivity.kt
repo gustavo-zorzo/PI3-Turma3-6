@@ -5,14 +5,20 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.Alignment
 import br.com.superid.ui.theme.SuperIDTheme
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
@@ -20,6 +26,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import android.util.Log
+import androidx.compose.ui.text.font.FontWeight
 
 private lateinit var auth: FirebaseAuth
 private val TAG = "SignUpActivityLOG"
@@ -40,46 +47,113 @@ class SignUpActivity : ComponentActivity() {
         var nome by remember { mutableStateOf("") }
         var email by remember { mutableStateOf("") }
         var senhaMestre by remember { mutableStateOf("") }
+        var confirmarSenha by remember { mutableStateOf("") }
+        var termosAceitos by remember { mutableStateOf(false) }
         val context = LocalContext.current
 
         Column(
             modifier = Modifier
+                .fillMaxSize()
                 .padding(24.dp)
-                .fillMaxWidth()
         ) {
-            Text("Cadastro", fontSize = 24.sp)
+            // Botão de voltar no topo
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.logo_back),
+                    contentDescription = "Voltar",
+                    modifier = Modifier
+                        .size(65.dp)
+                        .clickable {
+                            if (context is ComponentActivity) context.finish()
+                        },
+                    contentScale = ContentScale.Fit
+                )
+            }
 
-            TextField(
+            // Logo
+            Image(
+                painter = painterResource(id = R.drawable.logo_superidauth),
+                contentDescription = "Logo SuperID",
+                modifier = Modifier
+                    .size(300.dp)
+                    .align(Alignment.CenterHorizontally),
+                contentScale = ContentScale.Fit
+            )
+
+
+
+            Text(
+                text = "Crie a sua conta:",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Color(0xFF0E2F5A),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp)
+            )
+
+            // Campo: Nome
+            OutlinedTextField(
                 value = nome,
                 onValueChange = { nome = it },
-                label = { Text("Nome") },
-                modifier = Modifier
-                    .padding(vertical = 10.dp)
-                    .fillMaxWidth()
+                label = { Text("Nome de usuário:") },
+                modifier = Modifier.fillMaxWidth()
             )
 
-            TextField(
+            // Campo: Email
+            OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
-                label = { Text("Email") },
+                label = { Text("Endereço de e-mail:") },
                 modifier = Modifier
-                    .padding(vertical = 10.dp)
                     .fillMaxWidth()
+                    .padding(top = 12.dp)
             )
 
-            TextField(
+            // Campo: Senha
+            OutlinedTextField(
                 value = senhaMestre,
                 onValueChange = { senhaMestre = it },
-                label = { Text("Senha") },
+                label = { Text("Senha:") },
                 visualTransformation = PasswordVisualTransformation(),
                 modifier = Modifier
-                    .padding(vertical = 10.dp)
                     .fillMaxWidth()
+                    .padding(top = 12.dp)
             )
 
+            // Campo: Confirmar senha
+            OutlinedTextField(
+                value = confirmarSenha,
+                onValueChange = { confirmarSenha = it },
+                label = { Text("Confirme a senha:") },
+                visualTransformation = PasswordVisualTransformation(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 12.dp)
+            )
+
+            // Checkbox de termos
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(top = 16.dp)
+            ) {
+                Checkbox(
+                    checked = termosAceitos,
+                    onCheckedChange = { termosAceitos = it }
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text("Eu li e concordo com os termos de uso", fontSize = 12.sp)
+            }
+
+            // Botão de cadastro
             Button(
                 onClick = {
-                    if (nome.isNotBlank() && email.isNotBlank() && senhaMestre.length >= 6) {
+                    if (nome.isNotBlank() && email.isNotBlank() && senhaMestre.length >= 6 && senhaMestre == confirmarSenha && termosAceitos) {
                         cadastrarUsuario(nome, email, senhaMestre, context)
                     } else {
                         Toast.makeText(context, "Preencha todos os campos corretamente", Toast.LENGTH_SHORT).show()
@@ -87,9 +161,11 @@ class SignUpActivity : ComponentActivity() {
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 10.dp)
+                    .padding(top = 20.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF122C4F)),
+                shape = MaterialTheme.shapes.large
             ) {
-                Text("Cadastrar")
+                Text("Cadastre-se", color = Color.White)
             }
         }
     }
@@ -137,7 +213,6 @@ class SignUpActivity : ComponentActivity() {
                                 Log.d(TAG, "Usuário salvo com sucesso no Firestore.")
                                 Toast.makeText(context, "Cadastro completo!", Toast.LENGTH_SHORT).show()
 
-                                // Redirecionar para a Dashboard
                                 val intent = Intent(context, DashboardActivity::class.java)
                                 context.startActivity(intent)
                                 if (context is ComponentActivity) context.finish()
@@ -153,5 +228,4 @@ class SignUpActivity : ComponentActivity() {
                 }
             }
     }
-
 }

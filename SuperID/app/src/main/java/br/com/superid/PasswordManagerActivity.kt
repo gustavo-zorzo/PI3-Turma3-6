@@ -107,7 +107,7 @@ fun PasswordManagerScreen() {
     ) {
         TopAppBar(
             title = {
-                Text("Gerenciador de Senhas", fontWeight = FontWeight.Bold)
+                Text("Gerenciador de Senhas", fontWeight = FontWeight.Bold, color = Color(0xFF122C4F))
             },
             navigationIcon = {
                 Icon(
@@ -115,7 +115,7 @@ fun PasswordManagerScreen() {
                     contentDescription = "Voltar",
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
-                        .size(32.dp)
+                        .size(60.dp)
                         .clickable { activity?.finish() },
                     tint = Color.Unspecified
                 )
