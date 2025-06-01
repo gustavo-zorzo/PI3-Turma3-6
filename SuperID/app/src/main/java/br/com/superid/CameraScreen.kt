@@ -9,54 +9,100 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.camera.core.CameraSelector
-import androidx.camera.core.Preview
+import androidx.annotation.OptIn
+import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.mlkit.vision.barcode.BarcodeScanning
+import com.google.mlkit.vision.common.InputImage
+import androidx.camera.core.ExperimentalGetImage
 
-class CameraScreen : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
 
-        // Verificação de e-mail validado
-        val user = FirebaseAuth.getInstance().currentUser
-        if (user != null && !user.isEmailVerified) {
-            Toast.makeText(
-                this,
-                "Valide o seu e-mail antes de acessar esta área.",
-                Toast.LENGTH_LONG
-            ).show()
-            finish()
-            return
-        }
+@OptIn(ExperimentalGetImage::class)
+@Composable
+fun CameraPreviewView(
+    lifecycleOwner: LifecycleOwner,
+    onTokenDetected: (String) -> Unit
+) {
+    val context = LocalContext.current
+    val previewView = remember { PreviewView(context) }
 
-        setContent {
-            CameraScreenContent(this)
-        }
+    val barcodeScanner = remember {
+        BarcodeScanning.getClient()
+    }
+
+    AndroidView(
+        factory = { previewView },
+        modifier = Modifier.fillMaxSize()
+    ) {
+        val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
+        cameraProviderFuture.addListener({
+            val cameraProvider = cameraProviderFuture.get()
+
+            val preview = Preview.Builder().build().also {
+                it.setSurfaceProvider(previewView.surfaceProvider)
+            }
+
+            val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+
+            val analysis = ImageAnalysis.Builder().build().also { imageAnalysis ->
+                imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(context)) { imageProxy: ImageProxy ->
+                    val mediaImage = imageProxy.image
+                    if (mediaImage != null) {
+                        val inputImage = InputImage.fromMediaImage(
+                            mediaImage, imageProxy.imageInfo.rotationDegrees
+                        )
+
+                        barcodeScanner.process(inputImage)
+                            .addOnSuccessListener { barcodes ->
+                                for (barcode in barcodes) {
+                                    barcode.rawValue?.let { token ->
+                                        imageAnalysis.clearAnalyzer()
+                                        onTokenDetected(token)
+                                    }
+                                }
+                            }
+                            .addOnCompleteListener {
+                                imageProxy.close()
+                            }
+                    } else {
+                        imageProxy.close()
+                    }
+                }
+            }
+
+            try {
+                cameraProvider.unbindAll()
+                cameraProvider.bindToLifecycle(
+                    lifecycleOwner, cameraSelector, preview, analysis
+                )
+            } catch (e: Exception) {
+                Log.e("CameraScreen", "Erro ao iniciar preview da câmera", e)
+            }
+
+        }, ContextCompat.getMainExecutor(context))
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
 fun CameraScreenContent(lifecycleOwner: LifecycleOwner) {
     val context = LocalContext.current
@@ -76,7 +122,10 @@ fun CameraScreenContent(lifecycleOwner: LifecycleOwner) {
     }
 
     if (permissionGranted) {
-        CameraPreviewView(lifecycleOwner = lifecycleOwner)
+        CameraPreviewView(lifecycleOwner = lifecycleOwner) { token ->
+            handleLoginToken(token, context)
+        }
+
         QRScannerOverlay(
             onBack = {
                 val intent = Intent(context, DashboardActivity::class.java)
@@ -87,51 +136,35 @@ fun CameraScreenContent(lifecycleOwner: LifecycleOwner) {
     }
 }
 
-@Composable
-fun CameraPreviewView(lifecycleOwner: LifecycleOwner) {
-    val context = LocalContext.current
-    val previewView = remember { PreviewView(context) }
+class CameraScreen : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
-    AndroidView(
-        factory = { previewView },
-        modifier = Modifier.fillMaxSize()
-    ) {
-        val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
-        cameraProviderFuture.addListener({
-            val cameraProvider = cameraProviderFuture.get()
+        val user = FirebaseAuth.getInstance().currentUser
+        if (user != null && !user.isEmailVerified) {
+            Toast.makeText(
+                this,
+                "Valide o seu e-mail antes de acessar esta área.",
+                Toast.LENGTH_LONG
+            ).show()
+            finish()
+            return
+        }
 
-            val preview = Preview.Builder().build().also {
-                it.setSurfaceProvider(previewView.surfaceProvider)
-            }
-
-            val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-
-            try {
-                cameraProvider.unbindAll()
-                cameraProvider.bindToLifecycle(
-                    lifecycleOwner,
-                    cameraSelector,
-                    preview
-                )
-            } catch (e: Exception) {
-                Log.e("CameraScreen", "Erro ao iniciar preview da câmera", e)
-            }
-
-        }, ContextCompat.getMainExecutor(context))
+        setContent {
+            CameraScreenContent(this)
+        }
     }
 }
 
 @Composable
 fun QRScannerOverlay(onBack: () -> Unit) {
     Box(modifier = Modifier.fillMaxSize()) {
-        // Overlay escuro
         Box(
             modifier = Modifier
                 .matchParentSize()
                 .background(Color(0x99000000))
         )
-
-        // Moldura central
         Box(
             modifier = Modifier
                 .size(250.dp)
@@ -139,8 +172,6 @@ fun QRScannerOverlay(onBack: () -> Unit) {
                 .border(2.dp, Color.White)
                 .background(Color.Transparent)
         )
-
-        // Texto de instrução
         Text(
             text = "Aponte a câmera para o QR Code",
             color = Color.White,
@@ -148,15 +179,51 @@ fun QRScannerOverlay(onBack: () -> Unit) {
                 .align(Alignment.TopCenter)
                 .padding(top = 80.dp)
         )
-
-        // Botão de voltar
         IconButton(
             onClick = onBack,
             modifier = Modifier
                 .align(Alignment.TopStart)
                 .padding(16.dp)
         ) {
-            Icon(Icons.Filled.ArrowBack, contentDescription = "Voltar", tint = Color.White)
+            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar", tint = Color.White)
         }
     }
+}
+
+fun handleLoginToken(token: String, context: android.content.Context) {
+    val auth = FirebaseAuth.getInstance()
+    val db = FirebaseFirestore.getInstance()
+    val user = auth.currentUser
+
+    if (user == null) {
+        Toast.makeText(context, "Usuário não autenticado", Toast.LENGTH_SHORT).show()
+        return
+    }
+
+    db.collection("login")
+        .whereEqualTo("loginToken", token)
+        .limit(1)
+        .get()
+        .addOnSuccessListener { documents ->
+            if (!documents.isEmpty) {
+                val docRef = documents.documents[0].reference
+                docRef.update(
+                    mapOf(
+                        "user" to user.uid,
+                        "loginTime" to Timestamp.now()
+                    )
+                ).addOnSuccessListener {
+                    Toast.makeText(context, "Login sem senha concluído!", Toast.LENGTH_LONG).show()
+                    context.startActivity(Intent(context, DashboardActivity::class.java))
+                    (context as? ComponentActivity)?.finish()
+                }.addOnFailureListener {
+                    Toast.makeText(context, "Erro ao salvar login", Toast.LENGTH_SHORT).show()
+                }
+            } else {
+                Toast.makeText(context, "Token inválido ou expirado", Toast.LENGTH_SHORT).show()
+            }
+        }
+        .addOnFailureListener {
+            Toast.makeText(context, "Erro ao buscar login", Toast.LENGTH_SHORT).show()
+        }
 }
