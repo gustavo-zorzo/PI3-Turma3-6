@@ -28,6 +28,7 @@ import java.security.SecureRandom
 import android.app.Activity
 import android.util.Base64
 
+// Estrutura de dados para uma senha
 data class Senha(
     val id: String = "",
     val titulo: String = "",
@@ -37,9 +38,12 @@ data class Senha(
     val descricao: String = ""
 )
 
+// Atividade que gerencia a tela de senhas
 class PasswordManagerActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Verifica se o usuário está logado e com e-mail verificado
         val user = FirebaseAuth.getInstance().currentUser
         if (user != null && !user.isEmailVerified) {
             Toast.makeText(this, "Valide o seu e-mail.", Toast.LENGTH_LONG).show()
@@ -52,6 +56,8 @@ class PasswordManagerActivity : ComponentActivity() {
     }
 }
 
+
+// Tela principal do gerenciador de senhas
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PasswordManagerScreen() {
@@ -63,9 +69,14 @@ fun PasswordManagerScreen() {
     val context = LocalContext.current
     val activity = context as? Activity
     var senhaParaEditar by remember { mutableStateOf<Senha?>(null) }
+
+    // Categorias que aparecem
     val categoriasFixas = listOf("Sites Web", "Aplicativos", "Teclados de Acesso Físico")
     var categoriasPersonalizadas by remember { mutableStateOf(setOf<String>()) }
 
+
+
+    // Recupera senhas do Firestore e atualiza local
     LaunchedEffect(uid) {
         uid?.let {
             db.collection("Senhas").whereEqualTo("uid", it).addSnapshotListener { snapshot, _ ->
@@ -86,6 +97,7 @@ fun PasswordManagerScreen() {
                             descricao = doc.getString("descricao") ?: ""
                         )
                     }
+                    // Registra categorias personalizadas presentes nas senhas
                     val novasCategorias = senhas.map { it.categoria }
                         .filter { it.isNotBlank() && it !in categoriasFixas }
                         .toSet()
@@ -94,12 +106,15 @@ fun PasswordManagerScreen() {
             }
         }
     }
-
+    // Agrupamento de senhas por categoria
     val todasCategorias = (senhas.map { it.categoria } + categoriasFixas).toSet().sorted()
     val senhasPorCategoria = todasCategorias.associateWith { cat ->
         senhas.filter { it.categoria == cat }
     }
 
+
+
+    // Layout principal da tela
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -125,6 +140,9 @@ fun PasswordManagerScreen() {
             )
         )
 
+
+
+        // Lista de senhas agrupadas por categoria
         LazyColumn(
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -159,6 +177,10 @@ fun PasswordManagerScreen() {
             }
         }
 
+
+
+
+        // Botão para adicionar nova senha
         Button(
             onClick = { showDialog = true },
             modifier = Modifier
@@ -170,6 +192,7 @@ fun PasswordManagerScreen() {
         }
     }
 
+    // Diálogo de adicionar/editar senha
     if (showDialog) {
         NovaSenhaDialog(
             senhaInicial = senhaParaEditar,
@@ -184,6 +207,8 @@ fun PasswordManagerScreen() {
                     val tokenBytes = ByteArray(192)
                     SecureRandom().nextBytes(tokenBytes)
                     val accessToken = Base64.encodeToString(tokenBytes, Base64.NO_WRAP)
+
+                    // Monta os dados e salva no Firestore
                     val dados = mapOf(
                         "uid" to uid,
                         "titulo" to titulo,
@@ -209,7 +234,7 @@ fun PasswordManagerScreen() {
     }
 }
 
-
+// Componente que exibe uma senha individual com opções de visualizar, editar ou excluir
 @Composable
 fun PasswordItem(
     senha: Senha,
@@ -274,7 +299,7 @@ fun PasswordItem(
     }
 }
 
-
+// Componente que exibe os detalhes da senha em formato de dialog
 @Composable
 fun VisualizarSenhaDialog(senha: Senha, onDismiss: () -> Unit) {
     AlertDialog(
@@ -295,6 +320,7 @@ fun VisualizarSenhaDialog(senha: Senha, onDismiss: () -> Unit) {
     )
 }
 
+// Dialog usado para criar ou editar uma senha existente
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NovaSenhaDialog(
@@ -303,6 +329,7 @@ fun NovaSenhaDialog(
     onDismiss: () -> Unit,
     onSave: (titulo: String, login: String, senha: String, categoria: String, descricao: String, id: String?) -> Unit
 ) {
+    // Campos de entrada do formulário
     var titulo by remember { mutableStateOf(senhaInicial?.titulo ?: "") }
     var login by remember { mutableStateOf(senhaInicial?.login ?: "") }
     var senha by remember { mutableStateOf(senhaInicial?.senha ?: "") }
@@ -363,6 +390,7 @@ fun NovaSenhaDialog(
         },
         confirmButton = {
             Column {
+                // Mensagem de erro para campos obrigatórios
                 if (erroCamposObrigatorios) {
                     Text(
                         text = "Preencha todos os campos obrigatórios",
@@ -371,6 +399,7 @@ fun NovaSenhaDialog(
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
                 }
+                // Botão salvar
                 Button(onClick = {
                     val categoriaFinal = if (categoria == "Criar nova categoria") categoriaPersonalizada else categoria
                     if (titulo.isBlank() || senha.isBlank() || categoriaFinal.isBlank()) {
