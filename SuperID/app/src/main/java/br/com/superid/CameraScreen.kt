@@ -35,7 +35,7 @@ import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
 import androidx.camera.core.ExperimentalGetImage
 
-
+// Composable que exibe a câmera
 @OptIn(ExperimentalGetImage::class)
 @Composable
 fun CameraPreviewView(
@@ -48,7 +48,7 @@ fun CameraPreviewView(
     val barcodeScanner = remember {
         BarcodeScanning.getClient()
     }
-
+    // Adiciona o PreviewView ao layout Compose
     AndroidView(
         factory = { previewView },
         modifier = Modifier.fillMaxSize()
@@ -57,12 +57,15 @@ fun CameraPreviewView(
         cameraProviderFuture.addListener({
             val cameraProvider = cameraProviderFuture.get()
 
+            // Cria preview da câmera
             val preview = Preview.Builder().build().also {
                 it.setSurfaceProvider(previewView.surfaceProvider)
             }
 
+            // Seleciona câmera traseira
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
+            // Configura análise da imagem para detectar QR Code
             val analysis = ImageAnalysis.Builder().build().also { imageAnalysis ->
                 imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(context)) { imageProxy: ImageProxy ->
                     val mediaImage = imageProxy.image
@@ -71,6 +74,7 @@ fun CameraPreviewView(
                             mediaImage, imageProxy.imageInfo.rotationDegrees
                         )
 
+                        // Processa a imagem procurando QR Code
                         barcodeScanner.process(inputImage)
                             .addOnSuccessListener { barcodes ->
                                 for (barcode in barcodes) {
@@ -89,6 +93,7 @@ fun CameraPreviewView(
                 }
             }
 
+            // Liga câmera com preview e análise de QR
             try {
                 cameraProvider.unbindAll()
                 cameraProvider.bindToLifecycle(
@@ -102,12 +107,13 @@ fun CameraPreviewView(
     }
 }
 
-
+// Composable principal da tela da câmera
 @Composable
 fun CameraScreenContent(lifecycleOwner: LifecycleOwner) {
     val context = LocalContext.current
     var permissionGranted by remember { mutableStateOf(false) }
 
+    // Launcher para solicitar permissão de uso da câmera
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { granted ->
@@ -117,10 +123,12 @@ fun CameraScreenContent(lifecycleOwner: LifecycleOwner) {
         }
     }
 
+    // Solicita permissão ao carregar composable
     LaunchedEffect(Unit) {
         permissionLauncher.launch(Manifest.permission.CAMERA)
     }
 
+    // Se permissão concedida, mostra preview e overlay de scanner
     if (permissionGranted) {
         CameraPreviewView(lifecycleOwner = lifecycleOwner) { token ->
             handleLoginToken(token, context)
@@ -136,6 +144,7 @@ fun CameraScreenContent(lifecycleOwner: LifecycleOwner) {
     }
 }
 
+// Atividade que inicia a tela de câmera com verificação de e-mail
 class CameraScreen : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -157,6 +166,7 @@ class CameraScreen : ComponentActivity() {
     }
 }
 
+// Sobreposição gráfica com borda de leitura e botão de voltar
 @Composable
 fun QRScannerOverlay(onBack: () -> Unit) {
     Box(modifier = Modifier.fillMaxSize()) {
@@ -190,6 +200,7 @@ fun QRScannerOverlay(onBack: () -> Unit) {
     }
 }
 
+// Função que trata o token lido, associando o login ao usuário autenticado no Firebase
 fun handleLoginToken(token: String, context: android.content.Context) {
     val auth = FirebaseAuth.getInstance()
     val db = FirebaseFirestore.getInstance()
