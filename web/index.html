@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- QR Code library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="login-box">
+            <h2>Login</h2>
+            <form id="loginForm">
+                <div class="input-group">
+                    <input type="email" id="email" required>
+                    <label>Email</label>
+                </div>
+                <div class="input-group">
+                    <input type="password" id="password" required>
+                    <label>Senha</label>
+                </div>
+                <div class="remember-forgot">
+                    <label><input type="checkbox" id="remember"> Lembrar-me</label>
+                    <a href="#" id="forgotPassword">Esqueceu a senha?</a>
+                </div>
+                <button type="submit">Entrar</button>
+                <div class="qr-login">
+                    <button type="button" id="qrButton" class="qr-button">Login com QR Code</button>
+                    <div id="qrCodeContainer" class="qr-code-container">
+                        <div id="qrCode"></div>
+                        <p class="qr-instructions">Escaneie o QR Code com seu celular para fazer login</p>
+                        <div id="qrStatus" class="qr-status"></div>
+                    </div>
+                </div>
+                <div class="register-link">
+                    <p>Não tem uma conta? <a href="#" id="registerLink">Registre-se</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script src="firebase-config.js"></script>
+    <script src="firebase-functions.js"></script>
+    <script src="auth-manager.js"></script>
+    <script src="qr-login.js"></script>
+    <script src="qr-scanner.js"></script>
+</body>
+</html> 

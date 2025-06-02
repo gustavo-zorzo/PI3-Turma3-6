@@ -210,7 +210,9 @@ fun handleLoginToken(token: String, context: android.content.Context) {
                 docRef.update(
                     mapOf(
                         "user" to user.uid,
-                        "loginTime" to Timestamp.now()
+                        "userEmail" to user.email,
+                        "loginTime" to Timestamp.now(),
+                        "status" to "completed"
                     )
                 ).addOnSuccessListener {
                     Toast.makeText(context, "Login sem senha concluído!", Toast.LENGTH_LONG).show()
