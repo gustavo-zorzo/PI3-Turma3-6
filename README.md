@@ -63,4 +63,4 @@ Interface moderna e responsiva
 
 
 ## 📄 Licença
-Este projeto está licenciado sob a licença GNU GENERAL PUBLIC LICENSE. Consulte o arquivo LICENSE para mais informações.
+Este projeto está licenciado sob a licença GNU GENERAL PUBLIC LICENSE. Consulte o arquivo LICENSE para mais informações do projeto.
